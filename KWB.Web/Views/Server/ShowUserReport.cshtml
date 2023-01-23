@@ -1,0 +1,225 @@
+﻿@model KWB.Web.Models.Response.ResponseUserReport
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="../../plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="../../plugins/toastr/toastr.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="../plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="../plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../css/adminlte.min.css">
+    <style>
+        td {
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+
+        #example1_length {
+            right: -850px;
+            top: -40px;
+            position: relative;
+        }
+    </style>
+
+</head>
+<body class="hold-transition sidebar-mini" style=" background-color: gray;">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div style="background-color: #007bff;" class="card-header">
+                    <h3 class="card-title" style="color:white;">Users Reports</h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Message</th>
+                                <th>Type</th>
+                                <th>Date</th>
+                                <th>Place</th>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var userReport in Model.UserReportDB)
+                            {
+                                <tr>
+                                    <td>@userReport.Message</td>
+                                    @if (@userReport.TypeUserReportID == 0)
+                                    {
+                                        <td>Report</td>
+                                    }
+                                    else
+                                    {
+                                        <td>Prayer</td>
+                                    }
+                                    <td>@userReport.Date</td>
+                                    <td>@userReport.Place</td>
+                                    <td>@userReport.User.Name</td>
+                                    <td>@userReport.User.Email</td>
+                                    <td style="text-align: center; "><button type="button" onClick="deleteUserReport(@userReport.UserReportID)" class="btn btn-danger text-center" data-toggle="modal" data-target="#modal-delete"><i class="nav-icon fa fa-times"></i></button></td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Message</th>
+                                <th>Type</th>
+                                <th>Date</th>
+                                <th>Place</th>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Delete</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Delete-->
+    <div class="modal fade" id="modal-delete">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    @*<div class="icon-box">
+                            <i class="material-icons">&#xE5CD;</i>
+                        </div>*@
+                    <h4 class="modal-title w-100">Are you sure?</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Do you really want to delete this records? This process cannot be undone.</p>
+                    <input type="hidden" id="idValue">
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" id="btndelete" class="btn btn-danger btn-ok">Delete</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- jQuery -->
+    <script src="../plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="../../plugins/sweetalert2/sweetalert2.min.js"></script>
+    <!-- Toastr -->
+    <script src="../../plugins/toastr/toastr.min.js"></script>
+    <!-- DataTables  & Plugins -->
+    <script src="../../plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="../../plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="../../plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="../../plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="../../plugins/jszip/jszip.min.js"></script>
+    <script src="../../plugins/pdfmake/pdfmake.min.js"></script>
+    <script src="../../plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="../js/adminlte.min.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="../js/demo.js"></script>
+    <!-- Page specific script -->
+    <script>
+        function deleteUserReport(id) {
+            document.getElementById('idValue').value = id;
+        }
+        function updateUserReport() {
+            const formData = new FormData();
+            $.ajax({
+                url: baseUrl + "/Server/UpdateUserReport",
+                type: "POST",
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                data: formData,
+            }).done(function (res) {
+                if (res.status === 'success') {
+                    $('#modal-delete').modal('hide');
+                    toastr.success('The users Reports were seen');
+                } else {
+                    toastr.error(res.message);
+                }
+                console.log('Success');
+            }).fail(function (e, s, t) {
+                console.log('Failed');
+            });
+        }
+        var baseUrl = "@Url.Content("~")";
+        $(document).ready(function () {
+            updateUserReport();
+            $("#btndelete").click(function (e) {
+                var id = document.getElementById('idValue').value;
+
+                const formData = new FormData();
+                formData.append('id', id);
+                $.ajax({
+                    url: baseUrl + "/Server/DeleteUserReport",
+                    type: "POST",
+                    dataType: 'json',
+                    //enctype: 'multipart/form-data',
+                    processData: false,
+                    contentType: false,
+                    //contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                    data: formData,
+                }).done(function (res) {
+                    if (res.status === 'success') {
+                        $('#modal-delete').modal('hide');
+                        toastr.success('The userReport was deleted successfully');
+                        setTimeout(function () {
+                            window.location.href = "@Url.Action("ShowUserReport", "Server")";
+                        });
+                    } else {
+                        toastr.error(res.message);
+                    }
+                    console.log('Success');
+                }).fail(function (e, s, t) {
+                    console.log('Failed');
+                });
+            });
+        });
+    </script>
+    <script>
+        $(function () {
+            $.noConflict();
+            $("#example1").DataTable({
+                "responsive": true, "lengthChange": true,"stateSave": true, "autoWidth": false
+            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+            $('#example2').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "stateSave": true,
+            });
+        });
+    </script>
+</body>
+</html>

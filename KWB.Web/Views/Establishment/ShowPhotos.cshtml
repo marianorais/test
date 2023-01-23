@@ -1,0 +1,341 @@
+﻿@model List<KWB.Web.Models.Photo>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="../../plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="../../plugins/toastr/toastr.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="../plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="../plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <!-- Bootstrap Color Picker -->
+    <link rel="stylesheet" href="../../plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css">
+    <!-- Tempusdominus Bootstrap 4 -->
+    <link rel="stylesheet" href="../../plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="../../plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="../../plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="../../plugins/toastr/toastr.min.css">
+    <!-- Bootstrap4 Duallistbox -->
+    <link rel="stylesheet" href="../../plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css">
+    <!-- BS Stepper -->
+    <link rel="stylesheet" href="../../plugins/bs-stepper/css/bs-stepper.min.css">
+    <!-- dropzonejs -->
+    <link rel="stylesheet" href="../../plugins/dropzone/min/dropzone.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../css/adminlte.min.css">
+
+    <style>
+        td {
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+
+        #example1_length {
+            right: -850px;
+            top: -40px;
+            position: relative;
+        }
+    </style>
+
+</head>
+<body class="hold-transition sidebar-mini" style=" background-color: gray;">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div style="background-color: #007bff;" class="card-header">
+                    <h3 class="card-title" style="color:white;">Uploaded Photos</h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <button type="button" onClick="addPhotos()" class="btn btn-success"> Add Establishment with photos</button>
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Photo</th>
+                                <th>Category</th>
+                                <th>Place</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var photo in Model)
+                            {
+                                <tr>
+                                    <td><img style="height: 150px; width: 150px;" src="@photo.Url" alt="photo"/></td>
+                                    <td> @photo.Category</td>
+                                    <td> @photo.PlaceName</td>
+                                    <td style="text-align: center; "><button type="button" onClick="editPhoto(@photo.PhotoID)" class="btn btn-default" data-toggle="modal" data-target="#modal-update"><i class="nav-icon fas fa-edit"></i></button></td>
+                                    <td style="text-align: center; "><button type="button" onClick="deletePhoto(@photo.PhotoID)" class="btn btn-danger" data-toggle="modal" data-target="#modal-delete"><i class="nav-icon fa fa-times"></i></button></td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Photo</th>
+                                <th>Category</th>
+                                <th>Photo</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+     <!--Update-->
+    <div class="modal fade" id="modal-update">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Establishment</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="tagform">
+                        <div class="card-body">
+                            <!-- Photo ID -->
+                            <div class="form-group">
+                                <input type="hidden" class="form-control" id="idValue">
+                            </div>
+                            <!-- Place Name -->
+                            <div class="form-group">
+                                <label > Place Name: </label>
+                                <input class="form-control" readonly id="placeValue">
+                            </div>
+                            <!-- Photo -->
+                            <div class="form-group">
+                                <img style="height: 150px; width: 150px;" src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="photo" id="imgValue"/>
+                            </div>
+                            <!-- Category -->
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="categoryValue" class="form-control" style="width: 100%;">
+                                    <option value="All">All</option>
+                                    <option value="Outside">Outside</option>
+                                    <option value="Inside">Inside</option>
+                                    <option value="Menu">Menu</option>
+                                    <option value="Drinks">Drinks</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Rooms">Rooms</option>
+                                    <option value="Lobby">Lobby</option>
+                                    <option value="Activities">Activities</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" id="btnsubmit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Delete-->
+    <div class="modal fade" id="modal-delete">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title w-100">Are you sure?</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Do you really want to delete this records? This process cannot be undone.</p>
+                    <input type="hidden" id="deleteIdValue">
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" id="btndelete" class="btn btn-danger btn-ok">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="../plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="../../plugins/sweetalert2/sweetalert2.min.js"></script>
+    <!-- Toastr -->
+    <script src="../../plugins/toastr/toastr.min.js"></script>
+    <!-- DataTables  & Plugins -->
+    <script src="../../plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="../../plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="../../plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="../../plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="../../plugins/jszip/jszip.min.js"></script>
+    <!-- Select2 -->
+    <script src="../../plugins/select2/js/select2.full.min.js"></script>
+    <!-- Toastr -->
+    <script src="../../plugins/toastr/toastr.min.js"></script>
+    <!-- Bootstrap4 Duallistbox -->
+    <script src="../../plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>
+    <!-- InputMask -->
+    <script src="../../plugins/moment/moment.min.js"></script>
+    <script src="../../plugins/inputmask/jquery.inputmask.min.js"></script>
+    <!-- bootstrap color picker -->
+    <script src="../../plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+    <script src="../../plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+    <!-- BS-Stepper -->
+    <script src="../../plugins/bs-stepper/js/bs-stepper.min.js"></script>
+    <!-- dropzonejs -->
+    <script src="../../plugins/dropzone/min/dropzone.min.js"></script>
+    <script src="../../plugins/pdfmake/pdfmake.min.js"></script>
+    <script src="../../plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="../js/adminlte.min.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="../js/demo.js"></script>
+
+    <!--Toast-->
+    <script>
+        $(function () {
+            var Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 100
+            });
+        });
+    </script>
+
+    <script>
+        var baseUrl = "@Url.Content("~")";
+        function addPhotos() {
+            window.location.href = "@Url.Action("AddPlace", "Establishment")";
+        }
+        function editPhoto(id) {
+            const formData = new FormData();
+            formData.append('id', id);
+            $.ajax({
+                url: baseUrl + "/Establishment/ReturnPhoto",
+                type: "POST",
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                data: formData,
+            }).done(function (res) {
+                if (res.status === 'success') {
+                    var photo = res.data;
+                    console.log(photo);
+                    document.getElementById('idValue').value = photo.photoID;
+                    document.getElementById('placeValue').value = photo.placeName;
+                    document.getElementById('imgValue').src = photo.url;
+                    var selectTag = document.getElementById('categoryValue');
+                    var element = document.getElementById('categoryValue');
+                    var select = $('#categoryValue');
+                    $('#categoryValue').val(photo.category);
+                    $('#categoryValue').select2({});
+                } else {
+                    toastr.error(res.message);
+                }
+                console.log('Success');
+            }).fail(function (e, s, t) {
+                console.log('Failed');
+            });
+        }
+        function deletePhoto(id) {
+            document.getElementById('deleteIdValue').value = id;
+        }
+
+        //Update
+        $("#btnsubmit").click(function (e) {
+            document.getElementById("btnsubmit").disabled = true;
+            const formData = new FormData();
+            formData.append('id', document.getElementById('idValue').value);
+            formData.append('category', document.getElementById('categoryValue').value);
+            $.ajax({
+                url: baseUrl + "/Establishment/UpdatePhoto",
+                type: "POST",
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                data: formData,
+            }).done(function (res) {
+                if (res.status === 'success') {
+                    toastr.success('This photo was updated successfully');
+                    setTimeout(function () {
+                        window.location.href = "@Url.Action("ShowPhotos", "Establishment")";
+                    }, 2000);
+                } else {
+                    document.getElementById("btnsubmit").disabled = false;
+                    toastr.error(res.message);
+                }
+                console.log('Success');
+            }).fail(function (e, s, t) {
+                console.log('Failed');
+            });
+        });
+        //Delete
+        $("#btndelete").click(function (e) {
+            var id = document.getElementById('deleteIdValue').value;
+
+            const formData = new FormData();
+            formData.append('id', id);
+            $.ajax({
+                url: baseUrl + "/Establishment/DeletePhoto",
+                type: "POST",
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                data: formData,
+            }).done(function (res) {
+                if (res.status === 'success') {
+                    toastr.success('This photo was deleted successfully');
+                    setTimeout(function () {
+                        window.location.href = "@Url.Action("ShowPhotos", "Establishment")";
+                    }, 2000);
+                } else {
+                    toastr.error(res.message);
+                }
+                console.log('Success');
+            }).fail(function (e, s, t) {
+                console.log('Failed');
+            });
+        });
+    </script>
+
+    <script>
+        $(function () {
+            $.noConflict();
+            $("#example1").DataTable({
+                "responsive": true, "lengthChange": true, "stateSave": true, "autoWidth": false
+            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+            $('#example2').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "stateSave": true,
+            });
+        });</script>
+</body>
+</html>

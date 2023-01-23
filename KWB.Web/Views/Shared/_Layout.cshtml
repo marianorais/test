@@ -1,0 +1,328 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>KWB WEB</title>
+
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="../../plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
+    <!-- IonIcons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="../../plugins/toastr/toastr.min.css">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="../../plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="../../plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../css/adminlte.min.css">
+    <link rel="shortcut icon" type="image/x-icon" href="~/img/kwb.jpeg" />
+
+</head>
+<body class="hold-transition sidebar-mini sidebar-collapse">
+    <div class="wrapper">
+        <!-- Navbar -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <!-- Left navbar links -->
+
+            <!-- Right navbar links -->
+            <ul class="navbar-nav ml-auto">
+                <!-- Navbar Search -->
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="navbar-search" href="#" role="button">
+                        <i class="fas fa-search"></i>
+                    </a>
+                    <div class="navbar-search-block">
+                        <form class="form-inline">
+                            <div class="input-group input-group-sm">
+                                <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
+                                <div class="input-group-append">
+                                    <button class="btn btn-navbar" type="submit">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    <button class="btn btn-navbar" type="button" data-widget="navbar-search">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </li>
+
+            </ul>
+        </nav>
+
+        <!-- Main Sidebar Container -->
+        <aside style="height: 100vh;" class="main-sidebar sidebar-dark-primary elevation-4">
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Sidebar user panel (optional) -->
+                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                    <div class="image">
+                        <a  asp-area="" asp-controller="Home" asp-action="Index">
+                            <img src="../img/kwb.jpeg" class="img-circle elevation-2" alt="User Image" asp-area="" asp-controller="Home" asp-action="Index">
+                        </a>
+                        <span style="color: white; border: none; background-color: transparent;" class="form-control-sidebar"> Kosher without borders</span>
+                    </div>
+                </div>
+                <!-- SidebarSearch Form -->
+                <div class="form-inline">
+                    <div class="input-group" data-widget="sidebar-search">
+                        <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
+                        <div class="input-group-append">
+                            <button class="btn btn-sidebar">
+                                <i class="fas fa-search fa-fw"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Menu -->
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <li class="nav-header">Showing</li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Establishment" asp-action="ShowCertifications">
+                                <i class="nav-icon fas fa-stamp"></i>
+                                <p>
+                                    Certifications
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="ShowTags">
+                                <i class="nav-icon fa fa-tags"></i>
+                                <p>
+                                    Tags
+                                </p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Establishment" asp-action="ShowPlaces">
+                                <i class="nav-icon fa fa-globe"></i>
+                                <p>
+                                    Establishments
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="LocationTag" asp-action="ShowLocations">
+                                <i class="nav-icon fa fa-map-marker"></i>
+                                <p>
+                                    City & Country Guides
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Server" asp-action="ShowSponsor">
+                                <i class="nav-icon fas fa-history"></i>
+                                <p>
+                                    Sponsors
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Establishment" asp-action="ShowReview">
+                                <i class="nav-icon fa fa-globe"></i>
+                                <p>
+                                    Reviews
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="User" asp-action="ShowFavorites">
+                                <i class="nav-icon fa fa-star"></i>
+                                <p>
+                                    Favorites
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="User" asp-action="ShowUsers">
+                                <i class="nav-icon fa fa-users"></i>
+                                <p>
+                                    Users
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Establishment" asp-action="ShowEruv">
+                                <i class="nav-icon fa fa-running"></i>
+                                <p>
+                                    Eruv
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Establishment" asp-action="ShowPhotos">
+                                <i class="nav-icon fa fa-camera"></i>
+                                <p>
+                                    Uploaded Photos
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="LocationTag" asp-action="ShowThingsToDo">
+                                <i class="nav-icon fa fa-play"></i>
+                                <p>
+                                    Things To Do
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Server" asp-action="ShowFaq">
+                                <i class="nav-icon fa fa-question"></i>
+                                <p>
+                                    Faq
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Server" asp-action="ShowUserReport">
+                                <i class="nav-icon fa fa-flag"></i>
+                                <p>
+                                    User Reports
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Server" asp-action="ShowSuggestion">
+                                <i class="nav-icon fa fa-lightbulb"></i>
+                                <p>
+                                    Suggestion
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Server" asp-action="ShowContactMessage">
+                                <i class="nav-icon fa fa-comments"></i>
+                                <p>
+                                    Contact Message
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Server" asp-action="ApiRegister">
+                                <i class="nav-icon fa fa-registered"></i>
+                                <p>
+                                    Apis Register
+                                </p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="ShowChangesHistory">
+                                <i class="nav-icon fa fa-globe"></i>
+                                <p>
+                                    Comparisons with google
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-header">ADDING</li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Establishment" asp-action="Certifications">
+                                <i class="nav-icon fa fa-plus-circle"></i>
+                                <p>
+                                    Certifications
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Tags">
+                                <i class="nav-icon fa fa-plus-circle"></i>
+                                <p>
+                                    Tags
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Establishment" asp-action="AddPlace">
+                                <i class="nav-icon fa fa-plus-circle"></i>
+                                <p>
+                                    Establishment
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="LocationTag" asp-action="AddLocationTag">
+                                <i class="nav-icon fa fa-plus-circle"></i>
+                                <p>
+                                    City&Country Guide
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Establishment" asp-action="Eruv">
+                                <i class="nav-icon fa fa-plus-circle"></i>
+                                <p>
+                                    Eruv
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Server" asp-action="AddFaq">
+                                <i class="nav-icon fa fa-plus-circle"></i>
+                                <p>
+                                    Faq
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="LocationTag" asp-action="AddThingToDo">
+                                <i class="nav-icon fa fa-plus-circle"></i>
+                                <p>
+                                    Thing To Do
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Server" asp-action="AddSponsor">
+                                <i class="nav-icon fa fa-plus-circle"></i>
+                                <p>
+                                    Sponsor
+                                </p>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+        <aside class="control-sidebar control-sidebar-dark"> </aside>
+
+        <div class="container">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+
+    <!-- SweetAlert2 -->
+    <script src="../../plugins/sweetalert2/sweetalert2.min.js"></script>
+    <!-- jQuery -->
+    <script src="../plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
+    <!-- AdminLTE -->
+    <script src="../js/adminlte.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="../js/demo.js"></script>
+    <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+    <script src="../js/pages/dashboard3.js"></script>
+    <!-- Toastr -->
+    <script src="../../plugins/toastr/toastr.min.js"></script>
+
+
+    <!-- Select2 -->
+    <script src="../../plugins/select2/js/select2.full.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

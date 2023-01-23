@@ -1,0 +1,342 @@
+﻿@model KWB.Web.Models.Response.ResponseCertifications
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="../plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="../plugins/datatables-buttons/css/buttons.bootstrap4.min.css">   
+    <!-- Toastr -->
+    <link rel="stylesheet" href="../../plugins/toastr/toastr.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../css/adminlte.min.css">
+    <style>
+        td {
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+
+        #tableCertification_length {
+            right: -850px;
+            top: -40px;
+            position: relative;
+        }
+    </style>
+
+</head>
+<body class="hold-transition sidebar-mini" style=" background-color: gray;">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header" style="background-color: #007bff;">
+                    <h3 class="card-title" style="color:white;">Certifications</h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <button type="button" onClick="addCert()" class="btn btn-success"> Add Certification</button>
+                    <table id="tableCertification" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Website</th>
+                                <th>Picture</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var certification in Model.CertificationsDB)
+                            {
+                                <tr>
+                                    <td>@certification.Name</td>
+                                    <td>@certification.Website</td>
+                                    <td>
+                                        @if (certification.Icono != null)
+                                        {
+                                            <img style="height: 150px; width: 150px;" src=@certification.Icono alt="photo">
+                                        }
+                                    </td>
+                                    <td style="text-align: center; "><button type="button" onClick="updateCert(@certification.CertificationID)" class="btn btn-default" data-toggle="modal" data-target="#modal-default"><i class="nav-icon fas fa-edit"></i></button></td>
+                                    <td style="text-align: center; "><button type="button" onClick="deleteCert(@certification.CertificationID)" class="btn btn-danger" data-toggle="modal" data-target="#modal-delete"> <i class="nav-icon fa fa-times"></i></button></td>
+                                </tr>
+                             }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Name</th>
+                                <th>Website</th>
+                                <th>Picture</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+        </div>
+        <!-- /.col -->
+    </div>
+    <!-- /.row -->
+    <div class="modal fade" id="modal-default">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Certification</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="certform">
+                        <div class="card-body">
+                            <!-- Cert ID -->
+                            <div class="form-group">
+                                <input type="hidden" asp-for="Name" class="form-control" id="idValue">
+                            </div>
+                            <!-- Cert Name -->
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Certification Name *</label>
+                                <input asp-for="Name" name="email" class="form-control" id="nameValue" placeholder="Enter name" maxlength="150">
+                            </div>
+                            <!-- Website -->
+                            <div class="form-group">
+                                <label for="exampleInputPassword1">Website</label>
+                                <input asp-for="Website" name="password" class="form-control" id="websiteValue" placeholder="Enter website" maxlength="3000">
+                            </div>
+                            <!-- File input -->
+                            <div class="form-group">
+                                <label for="exampleInputFile">File input</label>
+                                <div class="input-group">
+                                    <div class="custom-file">
+                                        <input type="file" asp-for="Icono" class="custom-file-input" id="iconValue">
+                                        <label class="custom-file-label" id="iconLabelValue" for="exampleInputFile">Choose file</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" id="btnsubmit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!--Delete-->
+    <div class="modal fade" id="modal-delete">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    @*<div class="icon-box">
+                            <i class="material-icons">&#xE5CD;</i>
+                        </div>*@
+                    <h4 class="modal-title w-100">Are you sure?</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Do you really want to delete this records? This process cannot be undone.</p>
+                    <input type="hidden" id="idValue">
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" id="btnDelete" class="btn btn-danger btn-ok">Delete</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
+
+
+    <!-- jQuery -->
+    <script src="../plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables  & Plugins -->
+    <script src="../../plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="../../plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="../../plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="../../plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="../../plugins/jszip/jszip.min.js"></script>
+    <script src="../../plugins/pdfmake/pdfmake.min.js"></script>
+    <script src="../../plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <!-- Toastr -->
+    <script src="../../plugins/toastr/toastr.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="../js/adminlte.min.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="../js/demo.js"></script>
+
+    <!--Photos-->
+    <script type="application/javascript">
+
+        $('#iconValue').change(function(e){
+            var size = $('#iconValue')[0].files[0].size * 0.001;
+            console.log('This file size iss: ' + size);
+            if(size>1500){
+                alert("the file exceeded the limit of 1.5 MB");
+            }else{
+              var fileName = e.target.files[0].name;
+              $('#iconLabelValue').html(fileName);
+            }
+        });
+    </script>
+    <!--Toast-->
+    <script>
+        $(function () {
+            var Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 100
+            });
+        });
+    </script>
+
+    <script>
+        var baseUrl = "@Url.Content("~")";
+        function updateCert(certificationID) {
+            const formData = new FormData();
+            formData.append('id', certificationID);
+            $.ajax({
+                url: baseUrl + "/Establishment/ReturnCert",
+                type: "POST",
+                dataType: 'json',
+                //enctype: 'multipart/form-data',
+                processData: false,
+                contentType: false,
+                //contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                data: formData,
+            }).done(function (res) {
+                if (res.status === 'success') {
+                    var cert = res.data;
+                    document.getElementById('idValue').value = cert.certificationID;
+                    document.getElementById('nameValue').value = cert.name;
+                    document.getElementById('websiteValue').value = cert.website;
+                    $('#iconLabelValue').html(cert.icono);
+                } else {
+                    alert(res.message);
+                }
+                console.log('Success');
+            }).fail(function (e, s, t) {
+                console.log('Failed');
+            });
+        }
+        function deleteCert(certificationID) {
+            document.getElementById('idValue').value = certificationID;
+        }
+        function addCert() {
+            window.location.href = "@Url.Action("Certifications", "Establishment")";
+        }
+        var baseUrl = "@Url.Content("~")";
+        $(document).ready(function () {
+            $("#btnsubmit").click(function (e) {
+                document.getElementById("btnsubmit").disabled = true;
+                var id = document.getElementById('idValue').value;
+                var name = document.getElementById('nameValue').value;
+                var website = document.getElementById('websiteValue').value;
+                var icon = $('#iconValue')[0].files[0];
+
+                const formData = new FormData();
+                formData.append('CertificationID', id);
+                formData.append('Name', name);
+                formData.append('Website', website);
+                formData.append('Icono', icon);
+                $.ajax({
+                    url: baseUrl + "/Establishment/UpdateCert",
+                    type: "POST",
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                }).done(function (res) {
+                    if (res.status === 'success') {
+                        toastr.success('The cert was updated successfully');
+                        setTimeout(function () {
+                            window.location.href = "@Url.Action("ShowCertifications", "Establishment")";
+                        }, 2000);
+                    } else {
+                        document.getElementById("btnsubmit").disabled = false;
+                        toastr.error(res.message);
+                    }
+                    console.log('Success');
+                }).fail(function (e, s, t) {
+                    console.log('Failed');
+                });
+            });
+        });
+        //Delete
+        $(document).ready(function () {
+            $("#btnDelete").click(function (e) {
+                var id = document.getElementById('idValue').value;
+
+                const formData = new FormData();
+                formData.append('id', id);
+                $.ajax({
+                    url: baseUrl + "/Establishment/DeleteCert",
+                    type: "POST",
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                }).done(function (res) {
+                    if (res.status === 'success') {
+                        toastr.success('The cert was deleted successfully');
+                        setTimeout(function () {
+                            window.location.href = "@Url.Action("ShowCertifications", "Establishment")";
+                        }, 2000);
+                    } else {
+                        alert(res.message);
+                    }
+                    console.log('Success');
+                }).fail(function (e, s, t) {
+                    console.log('Failed');
+                });
+            });
+        });
+    </script>
+    
+    <!--DataTable-->
+    <script>
+        $(function () {
+            $.noConflict();
+            $("#tableCertification").DataTable({
+                "responsive": true, "lengthChange": true, "stateSave": true, "autoWidth": false,
+                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+            }).buttons().container().appendTo('#tableCertification_wrapper .col-md-6:eq(0)');
+            $('#example2').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "stateSave": true,
+            });
+        });
+    </script>
+</body>
+</html>

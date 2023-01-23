@@ -1,0 +1,172 @@
+﻿@model KWB.Web.Models.Response.ResponseThingToDo
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>ThingsToDo</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
+    <!-- daterange picker -->
+    <link rel="stylesheet" href="../../plugins/daterangepicker/daterangepicker.css">
+    <!-- iCheck for checkboxes and radio inputs -->
+    <link rel="stylesheet" href="../../plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- Bootstrap Color Picker -->
+    <link rel="stylesheet" href="../../plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css">
+    <!-- Tempusdominus Bootstrap 4 -->
+    <link rel="stylesheet" href="../../plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="../../plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="../../plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="../../plugins/toastr/toastr.min.css">
+    <!-- Bootstrap4 Duallistbox -->
+    <link rel="stylesheet" href="../../plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css">
+    <!-- BS Stepper -->
+    <link rel="stylesheet" href="../../plugins/bs-stepper/css/bs-stepper.min.css">
+    <!-- dropzonejs -->
+    <link rel="stylesheet" href="../../plugins/dropzone/min/dropzone.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../../dist/css/adminlte.min.css">
+</head>
+<body class="hold-transition sidebar-mini " style=" background-color: gray;">
+    <div class="wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title" style="color:white;">Add a new Thing To Do</h3>
+                    </div>
+                    <!-- form start -->
+                    <form id="locationTagform">
+                        <div class="card-body">
+                            <!-- LocationTag -->
+                            <div class="form-group">
+                                <label>City & Country Guide *</label>
+                                <select id="locationTagValue" class="select2" style="width: 100%;">
+                                    <option selected="selected">Select One</option>
+                                    @foreach (var locationTag in Model.LocationTagDB)
+                                    {
+                                        <option value=@locationTag>@locationTag</option>
+                                    }
+                                </select>
+                            </div>
+                            <!-- Value -->
+                            <div class="form-group">
+                                <label>Value *</label>
+                                <input class="form-control" id="nameValue" asp-for="Value" maxlength="100" placeholder="Enter ThingToDo">
+                            </div>
+                        </div>
+                        <!-- INPUT -->
+                        <div class="card-footer">
+                            <button type="button" id="btncancel" class="btn btn-default btn-ok">Reset</button>
+                            <button style="left: 86%; position: relative;" id="btnsubmit" type="button" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../../plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="../../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Select2 -->
+    <script src="../../plugins/select2/js/select2.full.min.js"></script>
+    <!-- Bootstrap4 Duallistbox -->
+    <script src="../../plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>
+    <!-- InputMask -->
+    <script src="../../plugins/moment/moment.min.js"></script>
+    <script src="../../plugins/inputmask/jquery.inputmask.min.js"></script>
+    <!-- bootstrap color picker -->
+    <script src="../../plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+    <script src="../../plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+    <!-- BS-Stepper -->
+    <script src="../../plugins/bs-stepper/js/bs-stepper.min.js"></script>
+    <!-- Toastr -->
+    <script src="../../plugins/toastr/toastr.min.js"></script>
+    <!-- dropzonejs -->
+    <script src="../../plugins/dropzone/min/dropzone.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="../../dist/js/adminlte.min.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="../../dist/js/demo.js"></script>
+
+    <!-- Page specific script -->
+    <script type="application/javascript">
+        $('input[type="file"]').change(function(e){
+            var fileName = e.target.files[0].name;
+            $('.custom-file-label').html(fileName);
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $("#btncancel").click(function (e) {
+                e.preventDefault();
+                window.location.href = "@Url.Action("AddThingToDo", "LocationTag")";
+            });
+            var baseUrl = "@Url.Content("~")";
+            $("#btnsubmit").click(function (e) {
+                document.getElementById("btnsubmit").disabled = true;
+                e.preventDefault();
+
+                var name = document.getElementById('nameValue').value;
+                var locationTag = document.getElementById('locationTagValue').value;
+
+                const formData = new FormData();
+                formData.append('Value', name);
+                formData.append('LocationTagSelected', locationTag);
+                $.ajax({
+                    url: baseUrl+"/LocationTag/AddThingToDo",
+                    type: "POST",
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                }).done(function (res) {
+                    if (res.status === 'success') {
+                        toastr.success('The Thing To Do was added successfully');
+                        setTimeout(function () {
+                            window.location.href = "@Url.Action("AddThingToDo", "LocationTag")";
+                        }, 2000);
+                    } else {
+                        document.getElementById("btnsubmit").disabled = false;
+                        toastr.error(res.message);
+                    }
+                    console.log('Success');
+                }).fail(function (e, s, t) {
+                    console.log('Failed');
+                });
+            });
+        });
+    </script>
+    <!--Select2 Script-->
+    <script>
+        $(function () {
+            //Initialize Select2 Elements
+            $('.select2').select2()
+            //Initialize Select2 Elements
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            $('.my-colorpicker2').on('colorpickerChange', function (event) {
+                $('.my-colorpicker2 .fa-square').css('color', event.color.toString());
+            })
+        })
+        // BS-Stepper Init
+        document.addEventListener('DOMContentLoaded', function () {
+            window.stepper = new Stepper(document.querySelector('.bs-stepper'))
+        })
+
+
+        // Get the template HTML and remove it from the doumenthe template HTML and remove it from the doument
+        var previewNode = document.querySelector("#template")
+        previewNode.id = ""
+        var previewTemplate = previewNode.parentNode.innerHTML
+        previewNode.parentNode.removeChild(previewNode)
+
+    </script>
+</body>
+</html>

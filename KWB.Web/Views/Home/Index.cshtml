@@ -1,0 +1,46 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+@model KWB.Web.Models.ViewModels.HomeViewModel
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>select the functionality you want to do</p>
+</div>
+
+
+<!-- Bootstrap 4 -->
+<script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- AdminLTE App -->
+<script src="../js/adminlte.min.js"></script>
+
+<script type="text/javascript">
+    console.log(@Model.UserReportWereNotSeen.ToString().ToLower());
+    console.log(@Model.ContactMessageWereNotSeen.ToString().ToLower());
+    if (@Model.UserReportWereNotSeen.ToString().ToLower()) {
+        console.log("entro");
+        $(document).Toasts('create', {
+            class: 'bg-danger',
+            title: 'User Report',
+            subtitle: 'Report',
+            body: 'there are user reports who were not seen'
+        })
+    }
+    if (@Model.ContactMessageWereNotSeen.ToString().ToLower()) {
+        $(document).Toasts('create', {
+            class: 'bg-danger',
+            title: 'Contact Message',
+            subtitle: 'Report',
+            body: 'there are contact message who were not seen'
+        })
+    }
+    if (@Model.SuggestionWereNotSeen.ToString().ToLower()) {
+        $(document).Toasts('create', {
+            class: 'bg-danger',
+            title: 'Suggestion',
+            subtitle: 'Report',
+            body: 'there are suggestion who were not seen'
+        })
+    }
+</script>
+

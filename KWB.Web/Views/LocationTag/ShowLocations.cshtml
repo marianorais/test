@@ -1,0 +1,594 @@
+﻿@model KWB.Web.Models.Response.ResponseLocationTag
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
+    <!-- daterange picker -->
+    <link rel="stylesheet" href="../../plugins/daterangepicker/daterangepicker.css">
+    <!-- iCheck for checkboxes and radio inputs -->
+    <link rel="stylesheet" href="../../plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- Bootstrap Color Picker -->
+    <link rel="stylesheet" href="../../plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css">
+    <!-- Tempusdominus Bootstrap 4 -->
+    <link rel="stylesheet" href="../../plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="../../plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="../../plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="../../plugins/toastr/toastr.min.css">
+    <!-- DataTables  & Plugins -->
+    <script src="../../plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="../../plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="../../plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="../../plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="../../plugins/jszip/jszip.min.js"></script>
+    <script src="../../plugins/pdfmake/pdfmake.min.js"></script>
+    <script src="../../plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <!-- Bootstrap4 Duallistbox -->
+    <link rel="stylesheet" href="../../plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css">
+    <!-- BS Stepper -->
+    <link rel="stylesheet" href="../../plugins/bs-stepper/css/bs-stepper.min.css">
+    <!-- dropzonejs -->
+    <link rel="stylesheet" href="../../plugins/dropzone/min/dropzone.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../css/adminlte.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+
+    <style>
+        td {
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+
+        listColumn {
+            height: 270px;
+            overflow-y: scroll;
+            float: left;
+        }
+        #tableLocationTag_length {
+            right: -165%;
+            top: -40px;
+            position: relative;
+        }
+    </style>
+
+</head>
+<body class="hold-transition sidebar-mini" style=" background-color: gray;">
+    <div style="width: 120%; word-break: break-all;" class="row">
+        <div class="col-12">
+            <div class="card">
+                <div style="background-color: #007bff;" class="card-header">
+                    <h3 class="card-title" style="color:white;">City&Country Guides</h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <button type="button" onClick="addLocationTag()" class="btn btn-success"> Add City&Country Guide</button>
+                    <table id="tableLocationTag" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Highlights</th>
+                                <th>Rectangle Image</th>
+                                <th>Square Image</th>
+                                <th>Things To Do</th>
+                                <th>Enable</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var location in Model.LocationTagDB)
+                             {
+                                <tr>
+                                    <td>@location.Name</td>
+                                    <td>@location.Description</td>
+                                    <td>@location.Highlights</td>
+                                    <td>
+                                        @if (location.RectangleImage != null)
+                                        {
+                                            <img style="height: 150px; width: 150px;" src=@location.RectangleImage alt="photo">
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (location.SquareImage != null)
+                                        {
+                                            <img style="height: 150px; width: 150px;" src=@location.SquareImage alt="photo">
+                                        }
+                                    </td>
+                                    <td style="height: 270px; overflow-y: scroll; float: left;" id="listColumn">
+                                        @if (location.ThingsToDo != null)
+                                        {
+                                            @foreach (var item in location.ThingsToDo)
+                                            {
+                                                <li style="list-style: auto;">
+                                                    @item
+                                                </li>
+                                            }
+                                        }
+                                    </td>
+                                    <td>@location.Enable</td>
+                                    <td style="text-align: center; "><button type="button" onClick="updateLocationTag(@location.CityID)" class="btn btn-default" data-toggle="modal" data-target="#modal-update"><i class="nav-icon fas fa-edit"></i></button></td>
+                                    <td style="text-align: center; "><button type="button" onClick="deleteLocationTag(@location.CityID)" class="btn btn-danger" data-toggle="modal" data-target="#modal-delete"><i class="nav-icon fa fa-times"></i></button></td>
+                                </tr>
+                             }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Highlights</th>
+                                <th>RectangleImage</th>
+                                <th>SquareImage</th>
+                                <th>ThingsToDo</th>
+                                <th>Enable</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Update-->
+    <div class="modal fade" id="modal-update">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">City&Country Guide</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="tagform">
+                        <div class="card-body">
+                            <!-- Location ID -->
+                            <div class="form-group">
+                                <input type="hidden" asp-for="CityID" class="form-control" id="idValue">
+                            </div>
+                            <!-- Location Name -->
+                            <div class="form-group">
+                                <label> City&Country *</label>
+                                <input class="form-control" id="nameValue" asp-for="Name" placeholder="Enter tagname" maxlength="150">
+                            </div>
+                            <!-- Latitude -->
+                            <div class="form-group">
+                                <label>Latitude *</label>
+                                <input class="form-control" id="latValue" asp-for="Lat" type="number" placeholder="Enter Latitude">
+                            </div>
+                            <!-- Longitude -->
+                            <div class="form-group">
+                                <label>Longitude *</label>
+                                <input class="form-control" id="lngValue" asp-for="Lng" type="number" placeholder="Enter Longitude">
+                            </div>
+                            <!-- RectangleImage File Input -->
+                            <div class="form-group">
+                                <label for="exampleInputFile">Rectangle Image *</label>
+                                <div class="input-group">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="rectangleImageValue">
+                                        <label class="custom-file-label" id="rectangleImageLabel">Choose file</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- SquareImage File Input -->
+                            <div class="form-group">
+                                <label for="exampleInputFile">Square Image *</label>
+                                <div class="input-group">
+                                    <div class="custom-file">
+                                        <input type="file" asp-for="SquareImage" class="custom-file-input" id="squareImageValue">
+                                        <label class="custom-file-label" id="squareImageLabel" for="exampleInputFile">Choose file</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Description -->
+                        <div class="form-group" style="display:grid;">
+                            <label asp-for="Description">Description *</label>
+                            <textarea name="Text1" cols="40" rows="5" id="descriptionValue" style="resize: none;height: 196px;overflow: hidden;" maxlength="100" placeholder="Enter Description"></textarea>
+                        </div>
+                        <!-- Highlights -->
+                        <div class="form-group" style="display:grid;">
+                            <label asp-for="Highlights">KWB Highlights *</label>
+                            <textarea name="Text1" cols="40" rows="5" id="highlightsValue" style="resize: none;height: 196px;overflow: hidden;" placeholder="Enter Highlights"></textarea>
+                        </div>
+                        <!-- ThingsToDo -->
+                        @*<input type="text" list="thingToDoValue" multiple size="50" placeholder="Select the things to do">
+                                <datalist id="thingToDoValue">
+                                    @foreach (var thingsToDo in Model.ThingsToDoDB.ToList())
+                                    {
+                            <option value="@thingsToDo">@thingsToDo</option>
+                            }*@
+                        <div class="form-group">
+                            <label>Thing To Do</label>
+                            <input class="form-control" id="thingToDoTextValue" placeholder="Enter new Thing To Do">
+                            <button type="button" id="btnThingToDo" style="margin-bottom: 20px; margin-top: 10px;" class="btn btn-primary">Add the new thing to do</button>
+                        </div>
+                        <div class="form-group">
+                            <label>Thing To Do Selected</label>
+                            <select id="thingToDoValue" class="form-control" multiple="multiple" data-placeholder="Select the things to do" style="width: 100%;">
+                                @foreach (var thingsToDo in Model.ThingsToDoDB.ToList())
+                                {
+                                    <option value="@thingsToDo">@thingsToDo</option>
+                                }
+                            </select>
+                        </div>
+                        <!-- Main Tags -->
+                        <div class="form-group">
+                            <label asp-for="TagsMain">Main Tags *</label>
+                            <select id="mainTagsSelectedValue" class="form-control" data-placeholder="Select the main tags" style="width: 100%;">
+                                <option>No Tag</option>
+                                @foreach (var tag in Model.TagsMain.ToList())
+                                {
+                                    <option value="@tag">@tag</option>}
+                            </select>
+                        </div>
+                        <!-- Not Main Tags -->
+                        <div class="form-group">
+                            <label asp-for="TagsNotMain">Tags</label>
+                            <select id="tagsSelectedValue" class="form-control" multiple="multiple" data-placeholder="Select the tags" style="width: 100%;">
+                                @foreach (var tag in Model.TagsNotMain.ToList())
+                                {
+                                    <option value="@tag">@tag</option>}
+                            </select>
+                        </div>
+                        <!-- Enable -->
+                        <div class="form-group">
+                            <input type="checkbox" id="enableValue" name="vehicle1">
+                            <label for="isMainValue"> Enable</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" id="btnsubmit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Delete-->
+    <div class="modal fade" id="modal-delete">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    @*<div class="icon-box">
+                            <i class="material-icons">&#xE5CD;</i>
+                        </div>*@
+                    <h4 class="modal-title w-100">Are you sure?</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Do you really want to delete this records? This process cannot be undone.</p>
+                    <input type="hidden" id="idValue">
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" id="btndelete" class="btn btn-danger btn-ok">Delete</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
+
+    <!-- jQuery -->
+    <script src="../plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables  & Plugins -->
+    <script src="../../plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="../../plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="../../plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="../../plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="../../plugins/jszip/jszip.min.js"></script>
+    <script src="../../plugins/pdfmake/pdfmake.min.js"></script>
+    <script src="../../plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+    <!-- Select2 -->
+    <script src="../../plugins/select2/js/select2.full.min.js"></script>
+    <!-- Toastr -->
+    <script src="../../plugins/toastr/toastr.min.js"></script>
+    <!-- Bootstrap4 Duallistbox -->
+    <script src="../../plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>
+    <!-- InputMask -->
+    <script src="../../plugins/moment/moment.min.js"></script>
+    <script src="../../plugins/inputmask/jquery.inputmask.min.js"></script>
+    <!-- bootstrap color picker -->
+    <script src="../../plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+    <script src="../../plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+    <!-- BS-Stepper -->
+    <script src="../../plugins/bs-stepper/js/bs-stepper.min.js"></script>
+    <!-- dropzonejs -->
+    <script src="../../plugins/dropzone/min/dropzone.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="../js/adminlte.min.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="../js/demo.js"></script>
+
+    <!--Photos-->
+    <script type="application/javascript">
+        $('#rectangleImageValue').change(function(e){
+            var size = $('#rectangleImageValue')[0].files[0].size * 0.001;
+            console.log('This file size iss: ' + size);
+            if(size>1500){
+                alert("the file exceeded the limit of 1.5 MB");
+            }else{
+              var fileName = e.target.files[0].name;
+              $('#rectangleImageLabel').html(fileName);
+            }
+        });
+        $('#squareImageValue').change(function(e){
+            var size = $('#squareImageValue')[0].files[0].size * 0.001;
+            console.log('This file size iss: ' + size);
+            if(size>1500){
+                alert("the file exceeded the limit of 1.5 MB");
+            }else{
+              var fileName = e.target.files[0].name;
+              $('#squareImageLabel').html(fileName);
+            }
+        });
+    </script>
+
+    <script>
+        $(function () {
+            //Initialize Select2 Elements
+            $('.select2').select2({
+                tags: true,
+                tokenSeparators: [",", "\n"]
+            }).on("change", function (e) {
+                console.log($("#thingToDoValue").val())
+            })
+            //Initialize Select2 Elements
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //Colorpicker
+            $('.my-colorpicker1').colorpicker()
+            //color picker with addon
+            $('.my-colorpicker2').colorpicker()
+
+            $('.my-colorpicker2').on('colorpickerChange', function (event) {
+                $('.my-colorpicker2 .fa-square').css('color', event.color.toString());
+            })
+        })
+        // BS-Stepper Init
+        document.addEventListener('DOMContentLoaded', function () {
+            window.stepper = new Stepper(document.querySelector('.bs-stepper'))
+        })
+
+        // Get the template HTML and remove it from the doumenthe template HTML and remove it from the doument
+        var previewNode = document.querySelector("#template")
+        previewNode.id = ""
+        var previewTemplate = previewNode.parentNode.innerHTML
+        previewNode.parentNode.removeChild(previewNode)
+
+    </script>
+
+    <!--Toast-->
+    <script>
+        $(function () {
+            var Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 100
+            });
+        });
+    </script>
+
+    @*Updates & Deletes*@
+<script>
+    var baseUrl = "@Url.Content("~")";
+        function deleteLocationTag(placeID){
+            document.getElementById('idValue').value = placeID;
+        }
+        function addLocationTag() {
+            window.location.href = "@Url.Action("AddLocationTag", "LocationTag")";
+        }
+        function updateLocationTag(locationTagID) {
+            const formData = new FormData();
+            formData.append('id', locationTagID);
+            $.ajax({
+                url: baseUrl+"/LocationTag/ReturnLocationTag",
+                type: "POST",
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                data: formData,
+            }).done(function (res) {
+                if (res.status === 'success') {
+                    var locationTag = res.data;
+                    console.log(locationTag);
+                    document.getElementById('idValue').value = locationTag.cityID;
+                    document.getElementById('nameValue').value = locationTag.name;
+                    document.getElementById('latValue').value = locationTag.lat;
+                    document.getElementById('lngValue').value = locationTag.lng;
+                    document.getElementById('highlightsValue').value = locationTag.highlights;
+                    document.getElementById('descriptionValue').value = locationTag.description;
+                    document.getElementById("enableValue").checked = locationTag.enable;
+                    $('#rectangleImageLabel').html(locationTag.rectangleImage);
+                    $('#squareImageLabel').html(locationTag.squareImage);
+
+                    var optionsToSelect = locationTag.thingsToDo;
+                    var selectTag = document.getElementById('thingToDoValue');
+                    var element = document.getElementById('thingToDoValue');
+                    var select = $('#thingToDoValue');
+                    $('#thingToDoValue').val(optionsToSelect);
+                    $('#thingToDoValue').select2({});
+
+
+                    var optionsToSelectTags = locationTag.tagsNotMain;
+                    var selectTag = document.getElementById('tagsSelectedValue');
+                    var element = document.getElementById('tagsSelectedValue');
+                    var select = $('#tagsSelectedValue');
+                    $('#tagsSelectedValue').val(optionsToSelectTags);
+                    $('#tagsSelectedValue').select2({});
+                    
+                    var selectTag = document.getElementById('mainTagsSelectedValue');
+                    var element = document.getElementById('mainTagsSelectedValue');
+                    var select = $('#mainTagsSelectedValue');
+                    $('#mainTagsSelectedValue').val(locationTag.tagsMain[0]);
+                    $('#mainTagsSelectedValue').select2({});
+
+                    //var eid = document.getElementById('mainTagsSelectedValue');
+                    //for (var i = 0; i < eid.options.length; ++i) {
+                    //    if (eid.options[i].text === locationTag.tagsMain[0])
+                    //        eid.options[i].selected = true;
+                    //}
+
+                } else {
+                    alert(res.message);
+                }
+                console.log('Success');
+            }).fail(function (e, s, t) {
+                console.log('Failed');
+            });
+        }
+
+        $(document).ready(function () {
+
+            $("#btnThingToDo").click(function (e) {
+                var text = document.getElementById('thingToDoTextValue');
+                if (text.value.length > 0) {
+                    /*var select = document.getElementById("thingsToDo");*/
+                    var option = document.createElement("option");
+                    option.text = text.value;
+                    option.value = text.value;
+                    var select = document.getElementById("thingToDoValue");
+                    select.appendChild(option);
+
+                    for (var i = 0, l = select.options.length, o; i < l; i++) {
+                        o = select.options[i];
+                        if (text.value.indexOf(o.text) != -1) {
+                            o.selected = true;
+                        }
+                    }
+                }
+
+            })
+
+            //Delete
+            $("#btndelete").click(function (e) {
+                var id = document.getElementById('idValue').value;
+
+                const formData = new FormData();
+                formData.append('id', id);
+                $.ajax({
+                    url: baseUrl+"/LocationTag/DeleteLocationTag",
+                    type: "POST",
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                }).done(function (res) {
+                    if (res.status === 'success') {
+                        toastr.success('The location was deleted successfully');
+                        setTimeout(function () {
+                            window.location.href = "@Url.Action("ShowLocations", "LocationTag")";
+                        }, 2000);
+                    } else {
+                        toastr.error(res.message);
+                    }
+                    console.log('Success');
+                }).fail(function (e, s, t) {
+                    console.log('Failed');
+                });
+            });
+
+            //Update
+            $("#btnsubmit").click(function (e) {
+                document.getElementById("btnsubmit").disabled = true;
+                var highlight = document.getElementById('highlightsValue').value;
+                var description = document.getElementById('descriptionValue').value;
+                var rectangleImage = $('#rectangleImageValue')[0].files[0];
+                var squareImage = $('#squareImageValue')[0].files[0];
+                var thingsToDo = $('#thingToDoValue').val();
+                var tags = $('#tagsSelectedValue').val();
+                var mainTag = document.getElementById('mainTagsSelectedValue').value;
+                console.log("thingsToDo: ", thingsToDo);
+
+                const formData = new FormData();
+                formData.append('CityID', document.getElementById('idValue').value);
+                formData.append('Name', document.getElementById('nameValue').value);
+                formData.append('Lat', document.getElementById('latValue').value);
+                formData.append('Lng', document.getElementById('lngValue').value);
+                formData.append('RectangleImage', rectangleImage);
+                formData.append('SquareImage', squareImage);
+                formData.append('Highlights', highlight);
+                formData.append('Description', description);
+                formData.append('ThingsToDoResponse', thingsToDo);
+                formData.append('TagsMain', mainTag);
+                formData.append('TagsNotMain', tags);
+                formData.append('Enable', $('#enableValue').is(":checked"));
+                $.ajax({
+                    url: baseUrl+"/LocationTag/UpdateLocationTag",
+                    type: "POST",
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                }).done(function (res) {
+                    if (res.status === 'success') {
+                        toastr.success('The location was updated successfully');
+                        setTimeout(function () {
+                            window.location.href = "@Url.Action("ShowLocations", "LocationTag")";
+                        }, 2000);
+                    } else {
+                        document.getElementById("btnsubmit").disabled = false;
+                        toastr.error(res.message);
+                    }
+                    console.log('Success');
+                }).fail(function (e, s, t) {
+                    console.log('Failed');
+                });
+            });
+        });
+</script>
+
+    <script>
+        $(function () {
+            $.noConflict();
+            $("#tableLocationTag").DataTable({
+                "responsive": true, "lengthChange": true, "stateSave": true, "autoWidth": false,
+                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+            }).buttons().container().appendTo('#tableLocationTag_wrapper .col-md-6:eq(0)');
+            $('#example2').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "stateSave": true,
+            });
+        });</script>
+</body>
+</html>

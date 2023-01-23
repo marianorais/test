@@ -1,0 +1,1300 @@
+﻿@model KWB.Web.Models.NewFolder.ResponsePlace
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
+    <!-- daterange picker -->
+    <link rel="stylesheet" href="../../plugins/daterangepicker/daterangepicker.css">
+    <!-- iCheck for checkboxes and radio inputs -->
+    <link rel="stylesheet" href="../../plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- Bootstrap Color Picker -->
+    <link rel="stylesheet" href="../../plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css">
+    <!-- Tempusdominus Bootstrap 4 -->
+    <link rel="stylesheet" href="../../plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="../../plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="../../plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="../../plugins/toastr/toastr.min.css">
+    <!-- BS Stepper -->
+    <link rel="stylesheet" href="../../plugins/bs-stepper/css/bs-stepper.min.css">
+    <!-- dropzonejs -->
+    <link rel="stylesheet" href="../../plugins/dropzone/min/dropzone.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="../plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="../plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../css/adminlte.min.css">
+    <style>
+        #map {
+            position: absolute;
+            height: 15%;
+            width: 85%;
+        }
+
+        #searchInput {
+            margin-top: 10px;
+            height: 35px;
+            width: 50px;
+            font-size: 15px;
+        }
+        listColumn {
+            height: 270px;
+            overflow-y: scroll;
+            float: left;
+        }
+
+        #tablePlace_length {
+            right: -165%;
+            top: -40px;
+            position: relative;
+        }
+    </style>
+</head>
+<body class="hold-transition sidebar-mini" style=" background-color: gray;">
+    <div style="width: 120%; word-break: break-all; " class="row">
+        <div class="col-12">
+            <div class="card">
+                <div style="background-color: #007bff;" class="card-header">
+                    <h3 class="card-title" style="color:white;">Establishment</h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <button type="button" onClick="addPlace()" class="btn btn-success"> Add Establishment</button>
+                    <button type="button" onclick="searchWithGoogle()" class="btn btn-success"> Search with google</button>
+                    <table id="tablePlace" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Address</th>
+                                <th>Phone</th>
+                                <th>Website</th>
+                                <th>Main Picture</th>
+                                <th>Enable</th>
+                                <th>Certification</th>
+                                <th>Tags</th>
+                                <th>Tags Qty</th>
+                                <th>Last updated</th>
+                                <th>Compare With Google</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var place in Model.PlacesDB)
+                            {
+                                <tr>
+                                    <td>@place.Name</td>
+                                    <td>@place.Address</td>
+                                    <td>@place.Phone</td>
+                                    <td style="width: 20%"><a href="@place.Website" alt="" target="_blank">@place.Website</a></td>
+                                    <td>
+                                        @if (place.Photo != null)
+                                        {
+                                            <img style="height: 150px; width: 150px;" src=@place.Photo alt="photo">
+                                        }
+                                    </td>
+                                    <td>@place.Enable</td>
+                                    <td>@place.CertificationName</td>
+                                    <td style="word-break: initial;" id="listColumn">
+                                        @if (place.Tags != null)
+                                        {
+                                            @foreach (var item in place.Tags)
+                                            {
+                                                <li style="list-style: auto;">
+                                                    @item
+                                                </li>
+                                            }
+                                        }
+                                    </td>
+                                    <td>@place.NumberOfTags</td>
+                                    <td>@place.LastUpdated</td>
+                                    <td style="text-align: center; ">
+                                        @if (place.GooglePlaceID != null)
+                                        {
+                                            <button type="button" id="myBtnUpdate" value="@place.GooglePlaceID" onclick='updateEstablishmentData(@place.PlaceID)' class="btn btn-success " data-toggle="modal" data-target="#modal-updateByGoogle">
+                                                <i class="nav-icon fa fa-upload"></i>
+                                            </button>
+                                            <div style="text-align: center; margin-top: 20px;">
+                                                <input type="checkbox" style="width:20px;height:20px;" id="update @place.PlaceID" value="@place.Name @place.Address" onclick="addSelectPlace(@place.PlaceID)" />
+                                            </div>
+                                        }else{
+                                            <button type="button" id="myBtnUpdate" value="@place.GooglePlaceID" onclick='updateEstablishmentData(@place.PlaceID)' class="btn btn-danger" data-toggle="modal" data-target="#modal-updateByGoogle">
+                                                <i class="nav-icon fa fa-upload"></i>
+                                            </button>
+                                            <div style="text-align: center; margin-top: 20px;">
+                                                <input type="checkbox" style="width:20px;height:20px;" value="@place.Name @place.Address" id="update @place.PlaceID" onclick="addSelectPlace(@place.PlaceID)" />
+                                            </div>
+                                        }
+                                    </td>
+                                    <td style="text-align: center; "><button type="button" onClick="updateEstablishment(@place.PlaceID)" class="btn btn-default" data-toggle="modal" data-target="#modal-update"><i class="nav-icon fas fa-edit"></i></button></td>
+                                    <td style="text-align: center; "><button type="button" onClick="deletePlace(@place.PlaceID)" class="btn btn-danger" data-toggle="modal" data-target="#modal-delete"><i class="nav-icon fa fa-times"></i></button></td>
+                                </tr>
+                             }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Name</th>
+                                <th>Address</th>
+                                <th>Phone</th>
+                                <th>Website</th>
+                                <th>Picture</th>
+                                <th>Enable</th>
+                                <th>Certification</th>
+                                <th>Tags</th>
+                                <th>Tags Qty</th>
+                                <th>Last Updated</th>
+                                <th>Compare With Google</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Confirm Compare With Google-->
+    <div class="modal fade" id="modal-updateByGoogle">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Establishment</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Do you want to compare with google this establishment?</p>
+                    <!-- Establishment ID -->
+                    <input type="hidden" id="estabishmentId">
+                    <!-- Google ID -->
+                    <input type="hidden" id="idGoogleValue">
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                    <button type="button" id="btnsubmitupdate" class="btn btn-success">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Update-->
+    <div class="modal fade" id="modal-update">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Establishment</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div style="border-top: none;" class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" id="btnsubmit" class="btn btn-primary btnsubmit">Save changes</button>
+                    </div>
+                    <form id="tagform">
+                        <div class="card-body">
+                            
+                            <!-- Establishment ID -->
+                            <div class="form-group">
+                                <input type="hidden" asp-for="ID" class="form-control" id="idValue">
+                            </div>
+                            <!-- Establishment Google ID -->
+                            <div class="form-group">
+                                <input type="hidden" asp-for="GooglePlaceID" class="form-control" id="googleIdValue">
+                            </div>
+                            <!-- Enable -->
+                            <div class="form-group">
+                                <input type="checkbox" id="enableValue" name="vehicle1">
+                                <label for="isMainValue"> Enable</label>
+                            </div>
+                            <!-- Permanently_Closed -->
+                            <div style="right: -150px;position: relative; top: -45px;" class="form-group">
+                                <input type="checkbox" id="isOpenValue" name="vehicle1">
+                                <label for="isOpenValue"> Permanently_Closed</label>
+                            </div>
+                            <!-- Tags -->
+                            <div style="margin-top: -40px;" class="form-group">
+                                <label>Tags</label>
+                                <select id="tagsValue" onchange="selectTag()" class="form-control" multiple="multiple" data-placeholder="Select the tags" style="width: 100%;">
+                                    @foreach (var tag in Model.TagsDB.Where(a => a.TagName != "must_see!" && a.TagName != "Questionable" && a.TagName != "NOT KOSHER").Select(a => a.TagName).ToList())
+                                    {
+                                        <option value="@tag">@tag</option>
+                                    }
+                                </select>
+                            </div>
+                            <div style="margin-top: -32px;">
+                                <!--Questionable-->
+                                <div style="position:relative;right:-250px;top: 49px;" class="form-group">
+                                    <input type="checkbox" id="questionableValue" name="vehicle1">
+                                    <label for="isMainValue"> Questionable</label>
+                                </div>
+                                <!--Not Kosher-->
+                                <div class="form-group">
+                                    <input type="checkbox" id="notKosherValue" name="vehicle1">
+                                    <label for="isMainValue"> Not Kosher</label>
+                                </div>
+                            </div>
+                            <!-- Certification Name -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Certification</label>
+                                        <select id="certValue" class="form-control " style="width: 100%;">
+                                            @foreach (var certificationName in Model.Certifications.Select(a => a.Name))
+                                            {
+                                                <option>@certificationName</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--Is must_see!-->
+                            <div style="position: relative; right: -250px; top: -45px;" class="form-group">
+                                <input type="checkbox" id="cantMissValue" name="vehicle1">
+                                <label for="isMainValue"> Must See</label>
+                            </div>
+                            <!-- Main Tags -->
+                            <div style="margin-top: -50px;" class="form-group">
+                                <label>Main tag *</label>
+                                <select id="tagMainValue" class="form-control" data-placeholder="Select the tag" style="width: 100%;">
+                                    @foreach (var tag in Model.TagsMainDB.ToList())
+                                    {
+                                        <option value="@tag">@tag</option>
+                                    }
+                                </select>
+                            </div>
+                            
+                            <!-- Prayer Times Days -->
+                            <div class="container-fluid">
+                                <div class="row" style="display: block;width: 100%;">
+                                    <div style="width: 100%;max-width: 100% !important;" class="col-md-6">
+                                        <button type="button" onclick="removePrayerTime()" class="btn btn-danger">
+                                                    Remove Prayers
+                                                </button>
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h3 class="card-title">Prayer</h3>
+                                            </div>
+                                            <div class="card-body p-0">
+                                                <table id="prayerTimeDays" class="table table-sm table-bordered table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Day</th>
+                                                            <th>Shacharit</th>
+                                                            <th>Mincha</th>
+                                                            <th>Maariv</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>Sunday</td>
+                                                            <td>
+                                                                <div id="sundayShajarit">
+                                                                    <input type="time" id="shajaritTime" class="prayerTime"/> 
+                                                                    <input type="time" id="shajaritTime2" class="prayerTime"/> 
+                                                                    <input type="time" id="shajaritTime3" class="prayerTime"/> 
+                                                                    <button type="button" onclick="removePrayerTimeSection('sundayShajarit')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div id="sundayMinja">
+                                                                    <input type="time" id="minjaTime" class="prayerTime"/> 
+                                                                    <input type="time" id="minjaTime2" class="prayerTime"/> 
+                                                                    <input type="time" id="minjaTime3" class="prayerTime"/> 
+                                                                    <button  type="button" onclick="removePrayerTimeSection('sundayMinja')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div id="sundayMaariv">
+                                                                    <input type="time" id="maarivTime" class="prayerTime"/> 
+                                                                    <input type="time" id="maarivTime2" class="prayerTime"/> 
+                                                                    <input type="time" id="maarivTime3" class="prayerTime"/> 
+                                                                    <button  type="button" onclick="removePrayerTimeSection('sundayMaariv')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Monday</td>
+                                                            <td id="mondayShajarit" class="rowSize">
+                                                                <input type="time" id="shajaritTime" class="prayerTime"/> 
+                                                                <input type="time" id="shajaritTime2" class="prayerTime"/> 
+                                                                <input type="time" id="shajaritTime3" class="prayerTime"/> 
+                                                                <button  type="button" onclick="removePrayerTimeSection('mondayShajarit')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="mondayMinja" class=" rowSize">
+                                                                <input type="time" id="minjaTime" class="prayerTime"/> 
+                                                                <input type="time" id="minjaTime2" class="prayerTime"/> 
+                                                                <input type="time" id="minjaTime3" class="prayerTime"/> 
+                                                                <button  type="button" onclick="removePrayerTimeSection('mondayMinja')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="mondayMaariv" class=" rowSize">
+                                                                <input type="time" id="maarivTime" class="prayerTime"/> 
+                                                                <input type="time" id="maarivTime2" class="prayerTime"/> 
+                                                                <input type="time" id="maarivTime3" class="prayerTime"/> 
+                                                                <button  type="button" onclick="removePrayerTimeSection('mondayMaariv')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Tuesday</td>
+                                                            <td id="tuesdayShajarit" class=" rowSize">
+                                                                <input type="time" id="shajaritTime" class="prayerTime"/> 
+                                                                <input type="time" id="shajaritTime2" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime3" class="prayerTime"/>
+                                                                <button  type="button" onclick="removePrayerTimeSection('tuesdayShajarit')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="tuesdayMinja" class=" rowSize">
+                                                                <input type="time" id="minjaTime" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime2" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime3" class="prayerTime"/>
+                                                                <button  type="button" onclick="removePrayerTimeSection('tuesdayMinja')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="tuesdayMaariv" class=" rowSize">
+                                                                <input type="time" id="maarivTime" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime2" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime3" class="prayerTime"/>
+                                                                <button  type="button" onclick="removePrayerTimeSection('tuesdayMaariv')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Wednesday</td>
+                                                            <td id="wednesdayShajarit" class=" rowSize">
+                                                                <input type="time" id="shajaritTime" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime2" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime3" class="prayerTime"/>
+                                                                <button  type="button" onclick="removePrayerTimeSection('wednesdayShajarit')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="wednesdayMinja" class=" rowSize">
+                                                                <input type="time" id="minjaTime" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime2" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime3" class="prayerTime"/>
+                                                                <button  type="button" onclick="removePrayerTimeSection('wednesdayMinja')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="wednesdayMaariv" class=" rowSize">
+                                                                <input type="time" id="maarivTime" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime2" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime3" class="prayerTime"/>
+                                                                <button  type="button" onclick="removePrayerTimeSection('wednesdayMaariv')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Thursday</td>
+                                                            <td id="thursdayShajarit" class=" rowSize">
+                                                                <input type="time" id="shajaritTime" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime2" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime3" class="prayerTime"/>
+                                                                <button  type="button" onclick="removePrayerTimeSection('thursdayShajarit')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="thursdayMinja" class=" rowSize">
+                                                                <input type="time" id="minjaTime" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime2" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime3" class="prayerTime"/>
+                                                                <button  type="button" onclick="removePrayerTimeSection('thursdayMinja')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="thursdayMaariv" class=" rowSize">
+                                                                <input type="time" id="maarivTime" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime2" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime3" class="prayerTime"/>
+                                                                <button  type="button" onclick="removePrayerTimeSection('thursdayMaariv')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Friday</td>
+                                                            <td id="fridayShajarit" class=" rowSize">
+                                                                <input type="time" id="shajaritTime" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime2" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime3" class="prayerTime"/>
+                                                                <button  type="button" onclick="removePrayerTimeSection('fridayShajarit')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="fridayMinja" class=" rowSize">
+                                                                <input type="time" id="minjaTime" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime2" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime3" class="prayerTime"/>
+                                                                <button  type="button" onclick="removePrayerTimeSection('fridayMinja')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="fridayMaariv" class=" rowSize">
+                                                                <input type="time" id="maarivTime" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime2" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime3" class="prayerTime"/>
+                                                                <button  type="button" onclick="removePrayerTimeSection('fridayMaariv')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Saturday</td>
+                                                            <td id="saturdayShajarit" class=" rowSize">
+                                                                <input type="time" id="shajaritTime" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime2" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime3" class="prayerTime"/>
+                                                                <button  type="button" onclick="removePrayerTimeSection('saturdayShajarit')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="saturdayMinja" class=" rowSize">
+                                                                <input type="time" id="minjaTime" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime2" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime3" class="prayerTime"/>
+                                                                <button  type="button" onclick="removePrayerTimeSection('saturdayMinja')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="saturdayMaariv" class=" rowSize">
+                                                                <input type="time" id="maarivTime" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime2" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime3" class="prayerTime"/>
+                                                                <button  type="button" onclick="removePrayerTimeSection('saturdayMaariv')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Markers -->
+                            <table id="markers" class="table table-bordered table-striped">
+                                    <button style="margin-top: 40px;margin-bottom: -10px;" type="button" onclick="removeMarkersSelected()" class="btn btn-danger">
+                                        Remove check markers
+                                    </button>
+                                <thead>
+                                    <tr>
+                                        <th style="display:none">ID</th>
+                                        <th>Tag Name</th>
+                                        <th>Picture</th>
+                                        <th>Selected</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var tag in Model.Markers)
+                                    {
+                                        <tr style="display: none;">
+                                            <td style="display:none">@tag.TagID</td>
+                                            <td >@tag.TagName</td>
+                                            <td style="text-align: center;"><img style="width: 30px;" src="data:image/png;base64,@tag.Marker" alt=""/></td>
+                                            <td><div style="text-align: center;"><input style="width: 30px;height: 16px;" type="checkbox" class="markers" id="marker @tag.TagID" onclick="selectMarker(@tag.TagID)" /></div></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>Tag Name</th>
+                                        <th>Picture</th>
+                                        <th>Selected</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+                            <!-- About -->
+                            <div class="form-group" style="display:grid;">
+                                <label for="exampleInputPassword1">Kwb Hightlight</label>
+                                <textarea name="Text1" cols="40" rows="5" id="aboutValue" style="resize: none;height: 106px;overflow-y: scroll;"></textarea>
+                            </div>
+                            <div id="firstInput">
+                                <!-- Establishment Name -->
+                                <div class="form-group">
+                                    <label> Establishment *</label>
+                                    <input class="form-control" id="nameValue" asp-for="Name" placeholder="Enter name" maxlength="150">
+                                </div>
+                                <!-- Latitude -->
+                                <div class="form-group">
+                                    <label>Latitude *</label>
+                                    <input class="form-control" id="latValue" asp-for="Latitude" type="number" placeholder="Enter Latitude">
+                                </div>
+                                <!-- Longitude -->
+                                <div class="form-group">
+                                    <label>Longitude *</label>
+                                    <input class="form-control" id="lngValue" asp-for="Longitude" type="number" placeholder="Enter Longitude">
+                                </div>
+                            </div>
+                            <!-- Address -->
+                            <div class="form-group">
+                                <label> Address *</label>
+                                <input class="form-control" id="locationValue" asp-for="Location" placeholder="Enter address" maxlength="300">
+                            </div>
+                            <!-- Phone -->
+                            <div class="form-group">
+                                <label>Phone</label>
+                                <input class="form-control" id="phoneValue" asp-for="Phone" placeholder="Enter Phone" maxlength="50">
+                            </div>
+                            <!-- Website -->
+                            <div class="form-group">
+                                <label>Website</label>
+                                <input class="form-control" id="websiteValue" asp-for="Website" placeholder="Enter Website" maxlength="1500">
+                            </div>
+                            <!-- Main Picture -->
+                            <div class="form-group">
+                                <label for="exampleInputFile">Main Picture (Recommended: 800x 386) *</label>
+                                <div class="input-group">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="pictureValue">
+                                        <label class="custom-file-label" id="pictureLabel">Choose file</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <img style="height: 150px; width: 150px;" src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="photo" id="mainPictureImg">
+                            <!-- File input Secundary-->
+                            <div>
+                                <div class="form-group">
+                                    <label for="exampleInputFile">Secundary Picture (Recommended: 600x 600)</label>
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            <input type="file" asp-for="ImageFile" class="custom-file-input" id="secundaryPicture">
+                                            <label class="custom-file-label" id="secundaryLabelPicture" for="exampleInputFile">Choose file</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <img style="height: 150px; width: 150px;" src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="photo" id="secundaryPictureImg">
+                                <div class="form-group">
+                                    <label for="exampleInputFile">Secundary Picture (Recommended: 600x 600)</label>
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            <input type="file" asp-for="ImageFile" class="custom-file-input" id="secundaryPicture2">
+                                            <label class="custom-file-label" id="secundaryLabelPicture2" for="exampleInputFile">Choose file</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <img style="height: 150px; width: 150px;" src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="photo" id="secundaryPicture2Img">
+                                <div class="form-group">
+                                    <label for="exampleInputFile">Secundary Picture (Recommended: 600x 600)</label>
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            <input type="file" asp-for="ImageFile" class="custom-file-input" id="secundaryPicture3">
+                                            <label class="custom-file-label" id="secundaryLabelPicture3" for="exampleInputFile">Choose file</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <img style="height: 150px; width: 150px;" src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="photo" id="secundaryPicture3Img">
+                                <input type="hidden" class="form-control" id="secundaryPhotoID">
+                            </div>
+                            <!-- Zipcode -->
+                            <div class="form-group">
+                                <label asp-for="ZipCode"></label>
+                                <input class="form-control" id="zipCodeValue" asp-for="ZipCode" placeholder="Enter ZipCode" maxlength="50">
+                            </div>
+                            <!-- PriceLevel -->
+                            <div class="form-group">
+                                <label>Price Level</label>
+                                <select id="priceLevelValue" style="width: 100%;">
+                                    <option value="0" selected="selected">0 (unknown)</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>@*
+                                <input type="number" class="form-control" id="priceLevelValue" placeholder="Enter Price Level">*@
+                            </div>
+                           
+                            <!-- Location Tags -->
+                            <div class="form-group">
+                                <label>City&Country Guides</label>
+                                <select id="locationsValue" class="form-control" multiple="multiple" data-placeholder="Select the guides" style="width: 100%;">
+                                    @foreach (var location in Model.LocationsDB.ToList())
+                                    {
+                                        <option value="@location">@location</option>}
+                                </select>
+                            </div>
+                             
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" id="btnsubmit" class="btn btn-primary btnsubmit">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Delete-->
+    <div class="modal fade" id="modal-delete">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title w-100">Are you sure?</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Do you really want to delete this records? This process cannot be undone.</p>
+                    <input type="hidden" id="idValue">
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" id="btndelete" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="../plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Select2 -->
+    <script src="../../plugins/select2/js/select2.full.min.js"></script>
+    <!-- Bootstrap4 Duallistbox -->
+    <script src="../../plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>
+    <!-- InputMask -->
+    <script src="../../plugins/moment/moment.min.js"></script>
+    <script src="../../plugins/inputmask/jquery.inputmask.min.js"></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+    <script src="../../plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+    <!-- BS-Stepper -->
+    <script src="../../plugins/bs-stepper/js/bs-stepper.min.js"></script>
+    <!-- dropzonejs -->
+    <script src="../../plugins/dropzone/min/dropzone.min.js"></script>
+    <!-- DataTables  & Plugins -->
+    <script src="../../plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="../../plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="../../plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="../../plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="../../plugins/jszip/jszip.min.js"></script>
+    <script src="../../plugins/pdfmake/pdfmake.min.js"></script>
+    <script src="../../plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <!-- Toastr -->
+    <script src="../../plugins/toastr/toastr.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="../js/adminlte.min.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="../js/demo.js"></script>    
+                                                                                        
+    <!-- Page specific script -->
+    <!--Photos-->
+    <script type="application/javascript">
+        $('#pictureValue').change(function(e){
+            var size = $('#pictureValue')[0].files[0].size * 0.001;
+            console.log('This file size iss: ' + size);
+            if(size>1500){
+                alert("the file exceeded the limit of 1.5 MB");
+            }else{
+              var fileName = e.target.files[0].name;
+              $('#pictureLabel').html(fileName);
+              document.getElementById('mainPictureImg').src ="https://thumbs.dreamstime.com/b/pictogram-cloud-upload-arrow-vector-illustration-symbol-icon-eps-file-available-120083421.jpg";
+            }
+        });
+        $('#urlValue1').change(function(e){
+          var fileName = e.target.files[0].name;
+          $('#urlLabelValue1').html(fileName);
+        });
+        $('#urlValue2').change(function(e){
+          var fileName = e.target.files[0].name;
+          $('#urlLabelValue2').html(fileName);
+        });
+        $('#urlValue3').change(function(e){
+          var fileName = e.target.files[0].name;
+          $('#urlLabelValue3').html(fileName);
+        });
+        $('#secundaryPicture').change(function(e){
+            var size = $('#secundaryPicture')[0].files[0].size * 0.001;
+            console.log('This file size iss: ' + size);
+            if(size>1500){
+                alert("the file exceeded the limit of 1.5 MB");
+            }else{
+              var fileName = e.target.files[0].name;
+              $('#secundaryLabelPicture').html(fileName);
+              document.getElementById('secundaryPictureImg').src = "https://thumbs.dreamstime.com/b/pictogram-cloud-upload-arrow-vector-illustration-symbol-icon-eps-file-available-120083421.jpg";
+            }
+        });
+        $('#secundaryPicture2').change(function(e){
+            var size = $('#secundaryPicture2')[0].files[0].size * 0.001;
+            console.log('This file size iss: ' + size);
+            if(size>1500){
+                alert("the file exceeded the limit of 1.5 MB");
+            }else{
+              var fileName = e.target.files[0].name;
+              $('#secundaryLabelPicture2').html(fileName);
+              document.getElementById('secundaryPicture2Img').src = "https://thumbs.dreamstime.com/b/pictogram-cloud-upload-arrow-vector-illustration-symbol-icon-eps-file-available-120083421.jpg";
+            }
+        });
+        $('#secundaryPicture3').change(function(e){
+            var size = $('#secundaryPicture3')[0].files[0].size * 0.001;
+            console.log('This file size iss: ' + size);
+            if(size>1500){
+                alert("the file exceeded the limit of 1.5 MB");
+            }else{
+              var fileName = e.target.files[0].name;
+              $('#secundaryLabelPicture3').html(fileName);
+              document.getElementById('secundaryPicture3Img').src = "https://thumbs.dreamstime.com/b/pictogram-cloud-upload-arrow-vector-illustration-symbol-icon-eps-file-available-120083421.jpg";
+            }
+        });
+    </script>
+    <!--Select2-->
+    <script>
+        $(function () {
+            //Initialize Select2 Elements
+            $('.select2').select2()
+
+            //Initialize Select2 Elements
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //Colorpicker
+            $('.my-colorpicker1').colorpicker()
+            //color picker with addon
+            $('.my-colorpicker2').colorpicker()
+
+            $('.my-colorpicker2').on('colorpickerChange', function (event) {
+                $('.my-colorpicker2 .fa-square').css('color', event.color.toString());
+            })
+        })
+        // BS-Stepper Init
+        document.addEventListener('DOMContentLoaded', function () {
+            window.stepper = new Stepper(document.querySelector('.bs-stepper'))
+        })
+
+
+        // Get the template HTML and remove it from the doumenthe template HTML and remove it from the doument
+        var previewNode = document.querySelector("#template")
+        previewNode.id = ""
+        var previewTemplate = previewNode.parentNode.innerHTML
+        previewNode.parentNode.removeChild(previewNode)
+
+    </script>
+    <!--Toast-->
+    <script>
+        $(function () {
+            var Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 100
+            });
+        });
+    </script>
+
+    <script>
+        var baseUrl = "@Url.Content("~")";
+        var secundaryImage1;
+        var secundaryImage2;
+        var secundaryImage3;
+        var listSelectedPlaces = [];
+        var markerSelectedID = 0;
+
+        $("#modal-delete").prependTo("body");
+
+        function deletePlace(placeID){
+            document.getElementById('idValue').value = placeID;
+        }
+        function addPlace() {
+            window.location.href = "@Url.Action("AddPlace", "Establishment")";
+        }
+        function addSelectPlace(placeID){
+            var placeName = document.getElementById('update ' + placeID).value;
+
+            if(listSelectedPlaces.includes(placeName)){
+                listSelectedPlaces = listSelectedPlaces.filter(name => name != placeName);
+            }
+            else{
+                listSelectedPlaces.push(placeName);
+            }
+            console.log("lista seleccionada: ", listSelectedPlaces);
+        }
+        function searchWithGoogle(){
+            console.log("entro");
+            for(var i = 0;i<listSelectedPlaces.length;i++){
+                window.open('https://www.google.com/search?q=' + listSelectedPlaces[i], '_blank');
+            }
+        }
+        function isEmptyPrayerTime(){
+            var isEmpty = true;
+            var inputsTime = document.getElementsByClassName("prayerTime");
+            for(var i=0;i<inputsTime.length;i++){
+                if(inputsTime[i].value != ""){isEmpty=false;}
+            }
+            return isEmpty;
+        }
+        function removePrayerTime(){
+            var inputsTime = document.getElementsByClassName("prayerTime");
+            for(var i=0;i<inputsTime.length;i++){
+                inputsTime[i].value = "";
+            }
+        }
+        function removePrayerTimeSection(divID){
+            var list = document.getElementById(divID).getElementsByTagName('input');
+            for (let i = 0; i < list.length; i++) {
+                list[i].value = "";
+            }
+        }
+        function updateEstablishment(placeID) {
+            const formData = new FormData();
+            formData.append('id', placeID);
+            console.log(placeID);
+            $.ajax({
+                url: baseUrl+"/Establishment/ReturnEstablishment",
+                type: "POST",
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                data: formData,
+            }).done(function (res) {
+                if (res.status === 'success') {
+                    var establishment = res.data;
+                    console.log(establishment);
+                    hideTableRows();
+                    document.getElementById('idValue').value = establishment.placeDB.placeID;
+                    document.getElementById('nameValue').value = establishment.placeDB.name;
+                    document.getElementById('latValue').value = establishment.placeDB.lat;
+                    document.getElementById('lngValue').value = establishment.placeDB.lng;
+                    document.getElementById('locationValue').value = establishment.placeDB.address;
+                    document.getElementById('phoneValue').value = establishment.placeDB.phone;
+                    document.getElementById('websiteValue').value = establishment.placeDB.website;
+                    document.getElementById('zipCodeValue').value = establishment.placeDB.zipCode;
+                    document.getElementById('aboutValue').value = establishment.placeDB.about;
+                    document.getElementById('priceLevelValue').value = establishment.placeDB.priceLevel == null ? "0" : establishment.placeDB.priceLevel;
+                    $('#pictureLabel').html(establishment.placeDB.photo);
+                    document.getElementById('mainPictureImg').src = establishment.placeDB.photo;
+
+                    //document.getElementById('tagMainValue').value = establishment.placeDB.tagMain == null ? null : establishment.placeDB.tagMain[0];
+                    document.getElementById('cantMissValue').checked = establishment.cantMiss;
+                    document.getElementById('questionableValue').checked = establishment.questionable;
+                    document.getElementById('notKosherValue').checked = establishment.notKosher;
+                    if(establishment.secundaryPictureUrl == null){
+                        secundaryImage1=null;
+                        document.getElementById('secundaryPictureImg').src = 'https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg'}
+                    else { 
+                        $('#secundaryLabelPicture').html(establishment.secundaryPictureUrl);
+                        document.getElementById('secundaryPictureImg').src = establishment.secundaryPictureUrl;
+                    }
+                    
+                    if(establishment.secundaryPicture2Url == null){
+                        secundaryImage2=null;
+                        document.getElementById('secundaryPicture2Img').src='https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg'
+                    }
+                    else { 
+                        $('#secundaryLabelPicture2').html(establishment.secundaryPicture2Url);
+                        document.getElementById('secundaryPicture2Img').src = establishment.secundaryPicture2Url;
+                    }
+                    if (establishment.secundaryPicture3Url == null) {
+                        secundaryImage3=null; 
+                        document.getElementById('secundaryPicture3Img').src='https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg'
+                    }
+                    else {
+                        $('#secundaryLabelPicture3').html(establishment.secundaryPicture3Url);
+                        document.getElementById('secundaryPicture3Img').src = establishment.secundaryPicture3Url;
+                    }
+                    document.getElementById('secundaryPhotoID').value = establishment.secundaryPictureID;
+   
+                    document.getElementById("enableValue").checked = establishment.placeDB.enable;
+                    document.getElementById("isOpenValue").checked = establishment.placeDB.permanently_closed;
+                    
+                    //document.getElementById('certValue').value = establishment.placeDB.certificationName;
+                    var element = document.getElementById('certValue');
+                    var values = establishment.placeDB.certificationName;
+                    var select = $('#certValue');
+                    $('#certValue').val(values);
+                    $('#certValue').select2({});
+
+                    var element = document.getElementById('locationsValue');
+                    var values = establishment.placeDB.locationsTag;
+                    var select = $('#locationsValue');
+                    $('#locationsValue').val(values);
+                    $('#locationsValue').select2({});
+
+                    var values = establishment.placeDB.tagMain;
+                    var element = document.getElementById('tagMainValue');
+                    var select = $('#tagMainValue');
+                    $('#tagMainValue').val(values);
+                    $('#tagMainValue').select2({});
+                    
+                    var values = establishment.placeDB.tags;
+                    var element = document.getElementById('tagsValue');
+                    var select = $('#tagsValue');
+                    markerSelectedID = establishment.placeDB.tagMarkerID == null ? "0" : establishment.placeDB.tagMarkerID.toString() ;
+                    if(values != null){
+                        search(values);
+                    }
+                    if(markerSelectedID!="0"){searchCheckedMarkerById(markerSelectedID);}
+                    $('#tagsValue').val(values);
+                    $('#tagsValue').select2({});
+
+                    var sundayShajarit = document.getElementById("sundayShajarit").getElementsByTagName('input');
+                    var sundayMinja = document.getElementById("sundayMinja").getElementsByTagName('input');
+                    var sundayMaariv = document.getElementById("sundayMaariv").getElementsByTagName('input');
+                    var mondayShajarit = document.getElementById("mondayShajarit").getElementsByTagName('input');
+                    var mondayMinja = document.getElementById("mondayMinja").getElementsByTagName('input');
+                    var mondayMaariv = document.getElementById("mondayMaariv").getElementsByTagName('input');
+                    var tuesdayShajarit = document.getElementById("tuesdayShajarit").getElementsByTagName('input');
+                    var tuesdayMinja = document.getElementById("tuesdayMinja").getElementsByTagName('input');
+                    var wednesdayShajarit = document.getElementById("wednesdayShajarit").getElementsByTagName('input');
+                    var wednesdayMinja = document.getElementById("wednesdayMinja").getElementsByTagName('input');
+                    var tuesdayMaariv = document.getElementById("tuesdayMaariv").getElementsByTagName('input');
+                    var wednesdayMaariv = document.getElementById("wednesdayMaariv").getElementsByTagName('input');
+                    var thursdayShajarit = document.getElementById("thursdayShajarit").getElementsByTagName('input');
+                    var thursdayMinja = document.getElementById("thursdayMinja").getElementsByTagName('input');
+                    var thursdayMaariv = document.getElementById("thursdayMaariv").getElementsByTagName('input');
+                    var fridayShajarit = document.getElementById("fridayShajarit").getElementsByTagName('input');
+                    var fridayMinja = document.getElementById("fridayMinja").getElementsByTagName('input');
+                    var fridayMaariv = document.getElementById("fridayMaariv").getElementsByTagName('input');
+                    var saturdayShajarit = document.getElementById("saturdayShajarit").getElementsByTagName('input');
+                    var saturdayMinja = document.getElementById("saturdayMinja").getElementsByTagName('input');
+                    var saturdayMaariv = document.getElementById("saturdayMaariv").getElementsByTagName('input');
+                    for(var i = 0;i<3;i++){
+                        sundayShajarit[i].value  = establishment.prayersTime2[0][i];
+                        sundayMinja[i].value = establishment.prayersTime2[0][i + 3] ;
+                        sundayMaariv[i].value = establishment.prayersTime2[0][i + 6] ;
+                        mondayShajarit[i].value = establishment.prayersTime2[1][i];
+                        mondayMinja[i].value = establishment.prayersTime2[1][i + 3];
+                        mondayMaariv[i].value = establishment.prayersTime2[1][i + 6];
+                        tuesdayShajarit[i].value = establishment.prayersTime2[2][i];
+                        tuesdayMinja[i].value = establishment.prayersTime2[2][i + 3];
+                        tuesdayMaariv[i].value = establishment.prayersTime2[2][i + 6];
+                        wednesdayShajarit[i].value = establishment.prayersTime2[3][i];
+                        wednesdayMinja[i].value = establishment.prayersTime2[3][i + 3];
+                        wednesdayMaariv[i].value = establishment.prayersTime2[3][i + 6];
+                        thursdayShajarit[i].value = establishment.prayersTime2[4][i];
+                        thursdayMinja[i].value = establishment.prayersTime2[4][i + 3];
+                        thursdayMaariv[i].value = establishment.prayersTime2[4][i + 6];
+                        fridayShajarit[i].value = establishment.prayersTime2[5][i];
+                        fridayMinja[i].value = establishment.prayersTime2[5][i + 3];
+                        fridayMaariv[i].value = establishment.prayersTime2[5][i + 6];
+                        saturdayShajarit[i].value = establishment.prayersTime2[6][i];
+                        saturdayMinja[i].value = establishment.prayersTime2[6][i + 3];
+                        saturdayMaariv[i].value = establishment.prayersTime2[6][i + 6];
+                    }
+
+                } else {
+                    alert(res.message);
+                }
+                console.log('Success');
+            }).fail(function (e, s, t) {
+                console.log('Failed');
+            });
+        }
+        
+        function updateEstablishmentData(placeID) {
+            var estabishmentId = document.getElementById("myBtnUpdate").value;//The button value has de establishment id
+            document.getElementById('estabishmentId').value = placeID;
+        }
+        function selectTag(){
+            var tagsSelected = $('#tagsValue').val();
+            search(tagsSelected);
+        }
+        function search(tag) {
+            console.log("searching", tag);
+            const tableReg = document.getElementById('markers');
+            const searchText = tag;
+            let total = 0;
+            let idIsInList = false;
+
+            for (let i = 1; i < tableReg.rows.length; i++) {
+                // Si el td tiene la clase "noSearch" no se busca en su cntenido
+                if (tableReg.rows[i].classList.contains("noSearch")) {
+                    continue;
+                }
+                let found = false;
+                const cellsOfRow = tableReg.rows[i].getElementsByTagName('td');
+                // Recorremos todas las celdas
+                for (let j = 0; j < cellsOfRow.length && !found; j++) {
+                    const compareWith = cellsOfRow[j].innerHTML;
+                    // Buscamos el texto en el contenido de la celda
+                    if (searchText.includes(compareWith)) {
+                        if(cellsOfRow[0].innerText == markerSelectedID){idIsInList=true}
+                        found = true;
+                        total++;
+                    }
+                }
+                if (found) {
+                    console.log("found: ", tableReg.rows[i]);
+                    tableReg.rows[i].style.display = '';
+                } else {
+                    // si no ha encontrado ninguna coincidencia, esconde la
+                    // fila de la tabla
+                    tableReg.rows[i].style.display = 'none';
+                }
+            }
+            if(idIsInList == false){markerSelectedID="0"}
+        }
+        function searchCheckedMarkerById(id) {
+            console.log("buscaquedo", id);
+            const tableReg = document.getElementById('markers');
+            const searchText = id;
+            let total = 0;
+            for (let i = 1; i < tableReg.rows.length; i++) {
+                // Si el td tiene la clase "noSearch" no se busca en su cntenido
+                if (tableReg.rows[i].classList.contains("noSearch")) {
+                    continue;
+                }
+                let found = false;
+                const cellsOfRow = tableReg.rows[i].getElementsByTagName('td');
+                // Recorremos todas las celdas
+                for (let j = 0; j < cellsOfRow.length && !found; j++) {
+                    const compareWith = cellsOfRow[j].innerHTML;
+                    // Buscamos el texto en el contenido de la celda
+                    if (searchText.length == 0 || compareWith == searchText) {
+                        var checkboxesAll = tableReg.rows[i].cells[3].children[0].querySelectorAll('input[type="checkbox"]')[0];
+                        checkboxesAll.checked = true;
+                        found = true;
+                        total++;
+                    }
+                }
+                if (found) {
+                    console.log("found: ", tableReg.rows[i]);
+                    //tableReg.rows[i].style.display = '';
+                } else {
+                    // si no ha encontrado ninguna coincidencia, esconde la
+                    // fila de la tabla
+                    //tableReg.rows[i].style.display = 'none';
+                }
+            }
+        }
+        function hideTableRows(){
+            var inputsMarkers = document.getElementsByClassName("markers");
+            //All checkboxes not checked by default
+            for (let i = 0; i < inputsMarkers.length; i++) {
+                inputsMarkers[i].checked = false;
+            }
+            const tableReg = document.getElementById('markers');
+            for (let i = 1; i < tableReg.rows.length; i++) {
+                tableReg.rows[i].style.display = 'none';
+            }
+        }
+        function selectMarker(id) {
+            markerSelectedID = id;
+            var markerInput = document.getElementById("marker " + id);
+            var markersInputs = document.getElementsByClassName("markers");
+            for (var i = 0; i < markersInputs.length; i++) {
+                markersInputs[i].checked = false;
+            }
+            markerInput.checked = true;
+            console.log(markerSelectedID);
+        }
+        function removeMarkersSelected(){
+            console.log("removing");
+            markerSelectedID = 0;
+            var markersInputs = document.getElementsByClassName("markers");
+            for(var i = 0;i<markersInputs.length;i++){
+                markersInputs[i].checked = false;
+            }
+        }
+        function removeShajaritTime(){
+            document.getElementById("shajaritTime").value = "";
+            document.getElementById("shajaritTime2").value = "";
+            document.getElementById("shajaritTime3").value = "";
+        }
+        function removeMinjaTime(){
+            document.getElementById("minjaTime").value = "";
+            document.getElementById("minjaTime2").value = "";
+            document.getElementById("minjaTime3").value = "";
+        }
+        function removeArvitTime(){
+            document.getElementById("arvitTime").value = "";
+            document.getElementById("arvitTime2").value = "";
+            document.getElementById("arvitTime3").value = "";
+        }
+        //Update & Remove Buttons
+        $(document).ready(function () {
+            //Compare with Google
+            $("#btnsubmitupdate").click(function (e) {
+                document.getElementById("btnsubmitupdate").disabled = true;
+                var placeID = document.getElementById("estabishmentId").value;
+                const formData = new FormData();
+                formData.append('placeID', placeID);
+                $.ajax({
+                    url: baseUrl+"/Home/ReturnEstablishmentByGoogle",
+                    type: "POST",
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                }).done(function (res) {
+                    if (res.status === 'success') {
+                        toastr.success('The establishment was updated successfully');
+                        $('#modal-updateByGoogle').modal('hide');
+                        window.location.href = "@Url.Action("ShowPlaces", "Establishment")";
+                    } else {                
+                        document.getElementById("btnsubmitupdate").disabled = false;
+                        toastr.error(res.message);
+                    }
+                    console.log('Success');
+                }).fail(function (e, s, t) {
+                    console.log('Failed');
+                });
+            });
+            //Update
+            $(".btnsubmit").click(function (e) {
+                document.getElementById("btnsubmit").disabled = true;
+                var phone = document.getElementById('phoneValue').value;
+                var website = document.getElementById('websiteValue').value;
+                var price_level = document.getElementById('priceLevelValue').value;
+                var cert = $('#certValue').val();
+                var locationTag = $('#locationsValue').val();
+                var tags = $('#tagsValue').val();
+                const formData = new FormData();
+                if($('#secundaryPicture')[0].files[0] == undefined){
+                    formData.append('SecundaryPictureUrl', document.getElementById('secundaryLabelPicture').textContent);
+                }
+                else{
+                    formData.append('SecundaryPicture', $('#secundaryPicture')[0].files[0] );
+                }
+                if($('#secundaryPicture2')[0].files[0] == undefined){
+                    formData.append('SecundaryPicture2Url', document.getElementById('secundaryLabelPicture2').textContent);
+                }
+                else{
+                    formData.append('SecundaryPicture2', $('#secundaryPicture2')[0].files[0] );
+                }
+                if($('#secundaryPicture3')[0].files[0] == undefined) {
+                    formData.append('SecundaryPicture3Url', document.getElementById('secundaryLabelPicture3').textContent);
+                }
+                else{
+                    formData.append('SecundaryPicture3', $('#secundaryPicture3')[0].files[0]);
+                }
+                var sundayShajarit = document.getElementById("sundayShajarit").getElementsByTagName('input');
+                var sundayMinja = document.getElementById("sundayMinja").getElementsByTagName('input');
+                var sundayMaariv = document.getElementById("sundayMaariv").getElementsByTagName('input');
+                var mondayShajarit = document.getElementById("mondayShajarit").getElementsByTagName('input');
+                var mondayMinja = document.getElementById("mondayMinja").getElementsByTagName('input');
+                var mondayMaariv = document.getElementById("mondayMaariv").getElementsByTagName('input');
+                var tuesdayShajarit = document.getElementById("tuesdayShajarit").getElementsByTagName('input');
+                var tuesdayMinja = document.getElementById("tuesdayMinja").getElementsByTagName('input');
+                var tuesdayMaariv = document.getElementById("tuesdayMaariv").getElementsByTagName('input');
+                var wednesdayShajarit = document.getElementById("wednesdayShajarit").getElementsByTagName('input');
+                var wednesdayMinja = document.getElementById("wednesdayMinja").getElementsByTagName('input');
+                var wednesdayMaariv = document.getElementById("wednesdayMaariv").getElementsByTagName('input');
+                var thursdayShajarit = document.getElementById("thursdayShajarit").getElementsByTagName('input');
+                var thursdayMinja = document.getElementById("thursdayMinja").getElementsByTagName('input');
+                var thursdayMaariv = document.getElementById("thursdayMaariv").getElementsByTagName('input');
+                var fridayShajarit = document.getElementById("fridayShajarit").getElementsByTagName('input');
+                var fridayMinja = document.getElementById("fridayMinja").getElementsByTagName('input');
+                var fridayMaariv = document.getElementById("fridayMaariv").getElementsByTagName('input');
+                var saturdayShajarit = document.getElementById("saturdayShajarit").getElementsByTagName('input');
+                var saturdayMinja = document.getElementById("saturdayMinja").getElementsByTagName('input');
+                var saturdayMaariv = document.getElementById("saturdayMaariv").getElementsByTagName('input');
+                var prayersTime = [
+                    "Sunday$$" + "Shabbos**" + sundayShajarit[0].value + "-" + sundayShajarit[1].value + "-" + sundayShajarit[2].value
+                    + "##Mincha**" + sundayMinja[0].value + "-" + sundayMinja[1].value + "-" + sundayMinja[2].value
+                    + "##Maariv**" + sundayMaariv[0].value + "-" + sundayMaariv[1].value + "-" + sundayMaariv[2].value + "##",
+                    "Monday$$" + "Shabbos**" + mondayShajarit[0].value + "-" + mondayShajarit[1].value + "-" + mondayShajarit[2].value
+                    + "##Mincha**" + mondayMinja[0].value + "-" + mondayMinja[1].value + "-" + mondayMinja[2].value
+                    + "##Maariv**" + mondayMaariv[0].value + "-" + mondayMaariv[1].value + "-" + mondayMaariv[2].value + "##",
+                    "Tuesday$$" + "Shabbos**" + tuesdayShajarit[0].value + "-" + tuesdayShajarit[1].value + "-" + tuesdayShajarit[2].value 
+                    + "##Mincha**" + tuesdayMinja[0].value + "-" + tuesdayMinja[1].value + "-" + tuesdayMinja[2].value 
+                    + "##Maariv**" + tuesdayMaariv[0].value + "-" + tuesdayMaariv[1].value + "-" + tuesdayMaariv[2].value + "##",
+                    "Wendesday$$" + "Shabbos**" + wednesdayShajarit[0].value + "-" + wednesdayShajarit[1].value + "-" + wednesdayShajarit[2].value
+                    + "##Mincha**" + wednesdayMinja[0].value + "-" + wednesdayMinja[1].value + "-" + wednesdayMinja[2].value 
+                    + "##Maariv**" + wednesdayMaariv[0].value + "-" + wednesdayMaariv[1].value + "-" + wednesdayMaariv[2].value + "##",
+                    "Thursday$$" + "Shabbos**" + thursdayShajarit[0].value + "-" + thursdayShajarit[1].value + "-" + thursdayShajarit[2].value 
+                    + "##Mincha**" + thursdayMinja[0].value + "-" + thursdayMinja[1].value + "-" + thursdayMinja[2].value 
+                    + "##Maariv**" + thursdayMaariv[0].value + "-" + thursdayMaariv[1].value + "-" + thursdayMaariv[2].value + "##",
+                    "Friday$$" + "Shabbos**" + fridayShajarit[0].value + "-" + fridayShajarit[1].value + "-" + fridayShajarit[2].value 
+                    + "##Mincha**" + fridayMinja[0].value + "-" + fridayMinja[1].value + "-" + fridayMinja[2].value 
+                    + "##Maariv**" + fridayMaariv[0].value + "-" + fridayMaariv[1].value + "-" + fridayMaariv[2].value + "##",
+                    "Saturday$$" + "Shabbos**" + saturdayShajarit[0].value + "-" + saturdayShajarit[1].value + "-" + saturdayShajarit[2].value 
+                    + "##Mincha**" + saturdayMinja[0].value + "-" + saturdayMinja[1].value + "-" + saturdayMinja[2].value 
+                    + "##Maariv**" + saturdayMaariv[0].value + "-" + saturdayMaariv[1].value + "-" + saturdayMaariv[2].value + "##"
+                    ];
+
+                formData.append('ID', document.getElementById('idValue').value);
+                formData.append('Name', document.getElementById('nameValue').value);
+                formData.append('Location', document.getElementById('locationValue').value);
+                formData.append('Enable', $('#enableValue').is(":checked"));
+                formData.append('ZipCode', document.getElementById('zipCodeValue').value);
+                formData.append('Latitude', document.getElementById('latValue').value);
+                formData.append('Longitude', document.getElementById('lngValue').value);
+                formData.append('ImageFile',  $('#pictureValue')[0].files[0]);
+                formData.append('GoogleMainPhoto', document.getElementById('pictureLabel').textContent)
+                formData.append('SecundaryPictureID', document.getElementById('secundaryPhotoID').value);
+                formData.append('About', document.getElementById('aboutValue').value);
+                formData.append('MarkerID', markerSelectedID);
+                formData.append('Phone', phone);
+                formData.append('Website', website);
+                formData.append('PriceLevel', price_level);
+                formData.append('Permanently_closed', $('#isOpenValue').is(":checked"));
+                formData.append('Tags', tags);
+                formData.append('TagsMainDB', document.getElementById('tagMainValue').value);
+                formData.append('LocationsTag', locationTag);
+                formData.append('CertificationName', cert);
+                prayersTime = isEmptyPrayerTime() == false ? prayersTime : "";
+                formData.append('PrayersTime', prayersTime);
+                formData.append('CantMiss', $('#cantMissValue').is(":checked"));
+                formData.append('Questionable', $('#questionableValue').is(":checked"));
+                formData.append('NotKosher', $('#notKosherValue').is(":checked"));
+                $.ajax({
+                    url: baseUrl+"/Establishment/UpdateEstablishment",
+                    type: "POST",
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                }).done(function (res) {
+                    if (res.status === 'success') {
+                        toastr.success('The establishment was updated successfully');
+                        setTimeout(function () {
+                            window.location.href = "@Url.Action("ShowPlaces", "Establishment")";
+                        }, 2000);
+                    } else {
+                        document.getElementById("btnsubmit").disabled = false;
+                        toastr.error(res.message);
+                    }
+                    console.log('Success');
+                }).fail(function (e, s, t) {
+                    console.log('Failed');
+                });
+            });
+            //Delete
+            $("#btndelete").click(function (e) {
+                var id = document.getElementById('idValue').value;
+
+                const formData = new FormData();
+                formData.append('id', id);
+                $.ajax({
+                    url: baseUrl+"/Establishment/DeletePlace",
+                    type: "POST",
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                }).done(function (res) {
+                    if (res.status === 'success') {
+                        toastr.success('The establishment was deleted successfully');
+                        setTimeout(function () {
+                            window.location.href = "@Url.Action("ShowPlaces", "Establishment")";
+                        }, 2000);
+                    } else {
+                        toastr.error(res.message);
+                    }
+                    console.log('Success');
+                }).fail(function (e, s, t) {
+                    console.log('Failed');
+                });
+            });
+        });
+    </script>
+    <script>
+        $(function () {
+            $.noConflict();
+            $("#tablePlace").DataTable({
+                "responsive": true, "lengthChange": true,"stateSave": true, "autoWidth": false,
+                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+            }).buttons().container().appendTo('#tablePlace_wrapper .col-md-6:eq(0)');
+            $('#example2').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "stateSave": true,
+            });
+            $("#markers").DataTable({
+                "paging": false,"responsive": true, "lengthChange": true,"stateSave": true, "autoWidth": false,
+            })
+        });</script>
+</body>
+</html>

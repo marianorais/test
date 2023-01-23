@@ -1,0 +1,681 @@
+﻿@model KWB.Web.Models.Response.ResponseTags
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>AdminLTE 3 | Advanced form elements</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
+    <!-- daterange picker -->
+    <link rel="stylesheet" href="../../plugins/daterangepicker/daterangepicker.css">
+    <!-- iCheck for checkboxes and radio inputs -->
+    <link rel="stylesheet" href="../../plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- Bootstrap Color Picker -->
+    <link rel="stylesheet" href="../../plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css">
+    <!-- Tempusdominus Bootstrap 4 -->
+    <link rel="stylesheet" href="../../plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="../../plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="../../plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <!-- Bootstrap4 Duallistbox -->
+    <link rel="stylesheet" href="../../plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css">
+    <!-- BS Stepper -->
+    <link rel="stylesheet" href="../../plugins/bs-stepper/css/bs-stepper.min.css">
+    <!-- dropzonejs -->
+    <link rel="stylesheet" href="../../plugins/dropzone/min/dropzone.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+        /* Make the image to responsive */
+        .icons{
+            border:2px solid #ccc; height: 300px; overflow-y: scroll;
+        }
+        ul {
+            list-style-type: none;
+        }
+
+        li {
+            display: inline-block;
+        }
+
+        input[type="checkbox"][id^="cb"] {
+            display: none;
+        }
+
+        label {
+            display: block;
+            position: relative;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+            label:before {
+                background-color: red;
+                color: white;
+                display: block;
+                border: 1px solid red;
+                position: absolute;
+                width: 20px;
+                height: 20px;
+                text-align: center;
+                line-height: 20px;
+                transition-duration: 0.4s;
+            }
+
+            label img {
+                height: 100%;
+                width: 100%;
+                border: 1px solid transparent;
+            }
+
+        :checked + label {
+            border-color: red;
+        }
+
+            :checked + label:before {
+                content: "✓";
+                background-color: red;
+                border: 1px solid red;
+                z-index: 99;
+            }
+
+            :checked + label img {
+                z-index: -1;
+                border: 1px solid red;
+            }
+
+        ul {
+            list-style-type: none;
+        }
+
+        li {
+            display: inline-block;
+        }
+
+        input[type="checkbox"][id^="cb"] {
+            display: none;
+        }
+
+        label {
+            border: 4px solid transparent;
+            border-radius: 50%;
+            display: block;
+            position: relative;
+            margin: 10px;
+            cursor: pointer;
+        }
+
+            label:before {
+                background-color: white;
+                color: white;
+                content: " ";
+                display: block;
+                border-radius: 50%;
+                border: 1px solid grey;
+                position: absolute;
+                top: -5px;
+                left: -5px;
+                width: 25px;
+                height: 25px;
+                text-align: center;
+                line-height: 28px;
+                transition-duration: 0.4s;
+                transform: scale(0);
+            }
+
+            label img {
+                height: 100px;
+                width: 100px;
+                transition-duration: 0.2s;
+                transform-origin: 50% 50%;
+            }
+
+        :checked + label {
+            border-color: #000;
+        }
+
+            :checked + label:before {
+                content: "✓";
+                background-color: grey;
+                transform: scale(1);
+            }
+
+            :checked + label img {
+                transform: scale(0.9);
+                border-radius: 50%;
+                z-index: -1;
+            }
+    </style>
+</head>
+<body class="hold-transition sidebar-mini" style=" background-color: gray;">
+    <div class="wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-primary">
+                    <div style="background-color: #007bff;" class="card-header">
+                        <h3 class="card-title" style="color:white;">Add a new Tag</h3>
+                    </div>
+                    <!-- form start -->
+                    <form id="tagform">
+                        <div class="card-body">
+                            <!-- TagName -->
+                            <div class="form-group">
+                                <label> Tag Name *</label>
+                                <input class="form-control" id="tagValue" asp-for="TagName" placeholder="Enter tagname" maxlength="250">
+                            </div>
+                            <!--Icono-->
+                            <div class="form-group font-awesome">
+                                <label for="isMainValue"> Icon</label>
+                                <div class="icons">
+                                    <ul>
+                                        <li style="grid-template-columns: 200px 200px 200px 200px 200px;display: grid;grid-auto-columns: minmax(24rem,1fr);">
+                                                <label>
+                                                    <input type="checkbox" name="test" value="" checked>
+                                                    None
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe18b" />
+                                                    <i class="fa fa-address-book" aria-hidden="true"></i>
+                                                </label>
+
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xf04be">
+                                                    <i class="fa fa-apple" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe0a0">
+                                                    <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe122">
+                                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe7ca">
+                                                    <i class="fa fa-bar-chart" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xf04c3">
+                                                    <i class="fa fa-university" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe1f6">
+                                                    <i class="fa fa-check" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe4b6">
+                                                    <i class="fa fa-camera" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe048">
+                                                    <i class="fa fa-camera-retro" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe1af">
+                                                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe050">
+                                                    <i class="fa fa-plus" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe0d7">
+                                                    <i class="fa fa-bed" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe13e">
+                                                    <i class="fa fa-gift" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe640">
+                                                    <i class="fa fa-tag" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe3ae">
+                                                    <i class="fa fa-unlock" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe0b2">
+                                                    <i class="fa fa-dollar-sign" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xf055c">
+                                                    <i class="fa fa-rocket" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe514">
+                                                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe22d">
+                                                    <i class="fa fa-flag" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe532">
+                                                    <i class="fa fa-cutlery" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe061">
+                                                    <i class="fa fa-cog" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xf04c6">
+                                                    <i class="fa fa-balance-scale" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe0e1">
+                                                    <i class="fa fa-ban" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe1fe">
+                                                    <i class="fa fa-bell" aria-hidden="true"></i>
+                                                </label>
+                                                @*<label>
+                                                <input type="checkbox" name="test" value="big">
+
+                                                </label>*@
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xf04b7">
+                                                    <i class="fa fa-credit-card" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe51c">
+                                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe288">
+                                                    <i class="fa fa-fire-extinguisher" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xf0513">
+                                                    <i class="fa fa-female" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xf0516">
+                                                    <i class="fa fa-heart" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe318">
+                                                    <i class="fa fa-home" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe3f8">
+                                                    <i class="fa fa-money" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xf0541">
+                                                    <i class="fa fa-newspaper-o" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xf1c2">
+                                                    <i class="fa fa-book" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xf04ed">
+                                                    <i class="fa fa-diamond" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe297">
+                                                    <i class="fa fa-plane" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe037">
+                                                    <i class="fa fa-snowflake-o" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe03a">
+                                                    <i class="fa fa-clock-o" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xf51b">
+                                                    <i class="fa fa-male" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe03e">
+                                                    <i class="fa fa-wheelchair" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe046">
+                                                    <i class="fa fa-bug" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe04b">
+                                                    <i class="fa fa-plus-square" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe054">
+                                                    <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xee50">
+                                                    <i class="fa fa-television" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe172">
+                                                    <i class="fa fa-cloud" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xee85">
+                                                    <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe0b6">
+                                                    <i class="fa fa-music" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe0d1">
+                                                    <i class="fa fa-battery-full" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe0d6">
+                                                    <i class="fa fa-umbrella" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe0e4">
+                                                    <i class="fa fa-bluetooth-b" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe0fa">
+                                                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe113">
+                                                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe120">
+                                                    <i class="fa fa-birthday-cake" aria-hidden="true"></i>
+                                                </label>
+                                                @*Reveer desde aca*@
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe6fe">
+                                                    <i class="fa fa-search-minus" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe6fd">
+                                                    <i class="fa fa-search-plus" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xf34b">
+                                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xf608">
+                                                    <i class="fa fa-phone" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xf286">
+                                                    <i class="fa fa-mobile" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe17e">
+                                                    <i class="fa fa-commenting" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe66b">
+                                                    <i class="fa fa-toggle-on" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xf44e">
+                                                    <i class="fa fa-toggle-off" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe043">
+                                                    <i class="fa fa-user-circle-o" aria-hidden="true"></i>
+                                                </label>
+
+                                                 <label>
+                                                    <input type="checkbox" name="test" value="0xe04f">
+                                                    <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                                                </label>
+                                                 <label>
+                                                    <input type="checkbox" name="test" value="0xf537">
+                                                    <i class="fa fa-plus" aria-hidden="true"></i>
+                                                </label>
+                                                 <label>
+                                                    <input type="checkbox" name="test" value="0xe05a">
+                                                    <i class="fa fa-cart-plus" aria-hidden="true"></i>
+                                                </label>
+                                                 <label>
+                                                    <input type="checkbox" name="test" value="0xe081">
+                                                    <i class="fa fa-at" aria-hidden="true"></i>
+                                                </label>
+
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe084">
+                                                    <i class="fa fa-anchor" aria-hidden="true"></i>
+                                                </label>
+                                                 <label>
+                                                    <input type="checkbox" name="test" value="0xe089">
+                                                    <i class="fa fa-building" aria-hidden="true"></i>
+                                                </label>
+                                                 <label>
+                                                    <input type="checkbox" name="test" value="0xf05bb">
+                                                    <i class="fa fa-area-chart" aria-hidden="true"></i>
+                                                </label>
+
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe095">
+                                                    <i class="fa fa-arrow-circle-o-down" aria-hidden="true"></i>
+                                                </label>
+                                                 <label>
+                                                    <input type="checkbox" name="test" value="0xf05bc">
+                                                    <i class="fa fa-arrow-circle-o-left" aria-hidden="true"></i>
+                                                </label>
+                                                 <label>
+                                                    <input type="checkbox" name="test" value="0xf05bd">
+                                                    <i class="fa fa-arrow-circle-o-right" aria-hidden="true"></i>
+                                                </label>
+
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xe096">
+                                                    <i class="fa fa-arrow-circle-o-up" aria-hidden="true"></i>
+                                                </label>
+                                                 <label>
+                                                    <input type="checkbox" name="test" value="0xeea1">
+                                                    <i class="fa fa-paperclip" aria-hidden="true"></i>
+                                                </label>
+                                                 <label>
+                                                    <input type="checkbox" name="test" value="0xf5ac">
+                                                    <i class="fa fa-bath" aria-hidden="true"></i>
+                                                </label>
+                                                 <label>
+                                                    <input type="checkbox" name="test" value="0xf06d8">
+                                                    <i class="fa fa-battery-empty" aria-hidden="true"></i>
+                                                </label>
+
+                                                 <label>
+                                                    <input type="checkbox" name="test" value="0xf078a">
+                                                    <i class="fa fa-battery-quarter" aria-hidden="true"></i>
+                                                </label>
+                                                 <label>
+                                                    <input type="checkbox" name="test" value="0xf0733">
+                                                    <i class="fa fa-battery-half" aria-hidden="true"></i>
+                                                </label>
+                                                 <label>
+                                                    <input type="checkbox" name="test" value="0xf078d">
+                                                    <i class="fa fa-battery-three-quarters" aria-hidden="true"></i>
+                                                </label>
+
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xeecb">
+                                                    <i class="fa fa-moon-o" aria-hidden="true"></i>
+                                                </label>
+                                                 <label>
+                                                    <input type="checkbox" name="test" value="0xe0ee">
+                                                    <i class="fa fa-bolt" aria-hidden="true"></i>
+                                                </label>
+                                                 <label>
+                                                    <input type="checkbox" name="test" value="0xe0f1">
+                                                    <i class="fa fa-bookmark" aria-hidden="true"></i>
+                                                </label>
+
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xf5cf">
+                                                    <i class="fa fa-bookmark-o" aria-hidden="true"></i>
+                                                </label>
+                                                 <label>
+                                                    <input type="checkbox" name="test" value="0xe105">
+                                                    <i class="fa fa-circle" aria-hidden="true"></i>
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="test" value="0xf5e5">
+                                                    <i class="fa fa-sun-o" aria-hidden="true"></i>
+                                                </label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!--Main-->
+                            <div style="display:none;" class="form-group">
+                                <input type="checkbox" id="mainValue" name="vehicle1">
+                                <label for="isMainValue"> Main tag</label>
+                            </div>
+                            <!--Father tag-->
+                            <div class="form-group">
+                                <label>Father Tag</label>
+                                <select id="fatherTagValue" class="select2" style="width: 100%;">
+                                    <option selected="selected">Select One</option>
+                                    @foreach (var tag in Model.TagsDB.Select(a=>a.TagName).ToList())
+                                    {
+                                        <option value=@tag>@tag</option>
+                                    }
+                                </select>
+                            </div>
+                            <!-- INPUT -->
+                            <div class="card-footer">
+                                <button type="button" id="btncancel" class="btn btn-default btn-ok">Reset</button>
+                                <button style="left: 86%; position: relative;" id="btnsubmit" type="button" class="btn btn-primary">Submit</button>
+                            </div>
+                            </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../../plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="../../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Select2 -->
+    <script src="../../plugins/select2/js/select2.full.min.js"></script>
+    <!-- Toastr -->
+    <link rel="stylesheet" href="../../plugins/toastr/toastr.min.css">
+    <!-- Bootstrap4 Duallistbox -->
+    <script src="../../plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>
+    <!-- InputMask -->
+    <script src="../../plugins/moment/moment.min.js"></script>
+    <script src="../../plugins/inputmask/jquery.inputmask.min.js"></script>
+    <!-- bootstrap color picker -->
+    <script src="../../plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+    <script src="../../plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+    <!-- BS-Stepper -->
+    <script src="../../plugins/bs-stepper/js/bs-stepper.min.js"></script>
+    <!-- Toastr -->
+    <script src="../../plugins/toastr/toastr.min.js"></script>
+    <!-- dropzonejs -->
+    <script src="../../plugins/dropzone/min/dropzone.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="../js/adminlte.min.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="../js/demo.js"></script>
+    <!-- Page specific script -->
+    <script>
+        $(function () {
+            //Initialize Select2 Elements
+            $('.select2').select2()
+            //Initialize Select2 Elements
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+            //Bootstrap Duallistbox
+            $('.duallistbox').bootstrapDualListbox()
+            //Colorpicker
+            $('.my-colorpicker1').colorpicker()
+            //color picker with addon
+            $('.my-colorpicker2').colorpicker()
+            $('.my-colorpicker2').on('colorpickerChange', function (event) {
+                $('.my-colorpicker2 .fa-square').css('color', event.color.toString());
+            })
+        })
+        // BS-Stepper Init
+        document.addEventListener('DOMContentLoaded', function () {
+            window.stepper = new Stepper(document.querySelector('.bs-stepper'))
+        })
+        // Get the template HTML and remove it from the doumenthe template HTML and remove it from the doument
+        var previewNode = document.querySelector("#template")
+        previewNode.id = ""
+        var previewTemplate = previewNode.parentNode.innerHTML
+        previewNode.parentNode.removeChild(previewNode)
+    </script>
+    <script>
+        $(document).ready(function () {
+            var icon = "";
+            var baseUrl = "@Url.Content("~")";
+            $("input:checkbox").on('click', function() {
+              // in the handler, 'this' refers to the box clicked on
+              var $box = $(this);
+              if ($box.is(":checked")) {
+                // the name of the box is retrieved using the .attr() method
+                // as it is assumed and expected to be immutable
+                var group = "input:checkbox[name='" + $box.attr("name") + "']";
+                // the checked state of the group/box on the other hand will change
+                // and the current value is retrieved using .prop() method
+                $(group).prop("checked", false);
+                $box.prop("checked", true);
+                icon = $box[0].value;
+                console.log(icon);
+              } else {
+                $box.prop("checked", false);
+              }
+            });
+            $("#btnsubmit").click(function (e) {
+                
+                document.getElementById("btnsubmit").disabled = true;
+                e.preventDefault();
+                //Serialize the form datas.
+                //var icon = document.getElementById('iconoValue').value;
+                //console.log(icon);
+                //var icon = $('#iconValue')[0].files[0];
+                var tag = document.getElementById('tagValue').value;
+                const formData = new FormData();
+                formData.append('TagName', tag);
+                formData.append('IconCode', icon);
+                formData.append('FatherTag', document.getElementById('fatherTagValue').value);
+                formData.append('Main', $('#mainValue').is(":checked"));
+                $.ajax({
+                    url: baseUrl + "/Home/Tags",
+                    type: "POST",
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                }).done(function (res) {
+                    if (res.status === 'success') {
+                        toastr.success('success, the tag was added successfully');
+                        setTimeout(function () {
+                            window.location.href = "@Url.Action("Tags", "Home")";
+                        }, 2000);
+                    } else {
+                        document.getElementById("btnsubmit").disabled = false;
+                        toastr.error(res.message);
+                    }
+                    console.log('Success');
+                }).fail(function (e, s, t) {
+                    console.log('Failed');
+                });
+            });
+            $("#btncancel").click(function (e) {
+                e.preventDefault();
+                window.location.href = "@Url.Action("Tags", "Home")";
+            });
+        });
+    </script>
+</body>
+</html>

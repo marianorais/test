@@ -1,0 +1,436 @@
+﻿@model List<List<string>>
+
+<style>
+    #map {
+        height: 500px;
+        margin-bottom: 5%;
+    }
+</style>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+
+<!-- Content Wrapper. Contains page content -->
+<div class="row">
+    <!-- left column -->
+    <div class="col-md-12">
+        <!-- jquery validation -->
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title" style="color:white;">Add a new Eruv</h3>
+            </div>
+            <!-- form start -->
+            <button style="width: 30%;position: relative;right: -65%;" id="delete-button">
+                Delete Selected Shape
+            </button>
+
+            <div id="map"></div>
+            <form id="eruvform">
+                <!-- Eruv Name -->
+                <div class="form-group">
+                    <label for="exampleInputEmail1">Name *</label>
+                    <input class="form-control" id="nameValue" maxlength="50" placeholder="Enter name">
+                </div>
+                <!-- Rabinato -->
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Rabbinate</label>
+                    <input class="form-control" id="rabbinateValue" maxlength="100" placeholder="Enter rabbinate">
+                </div>
+                <!-- Website -->
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Website</label>
+                    <input class="form-control" id="websiteValue" maxlength="100" placeholder="Enter website">
+                </div>
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Email</label>
+                    <input class="form-control" id="emailValue" maxlength="100" placeholder="Enter email">
+                </div>
+                <!-- Phone -->
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Phone</label>
+                    <input class="form-control" id="phoneValue" maxlength="50" placeholder="Enter phone">
+                </div>
+                <!-- HotlinePhone -->
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Hotline Phone</label>
+                    <input class="form-control" id="hotlinePhoneValue" maxlength="50" placeholder="Enter hotline phone">
+                </div>
+                <!-- City -->
+                <div class="form-group">
+                    <label for="exampleInputPassword1">City</label>
+                    <input class="form-control" id="cityValue" maxlength="150" placeholder="Enter the city">
+                </div>
+                <!-- Posek -->
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Posek *</label>
+                    <input class="form-control" id="posekValue" maxlength="100" placeholder="Enter posek">
+                </div>
+                <!-- Add Synagogues -->
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Synagogues</label>
+                    <input class="form-control" id="synagoguesValue" placeholder="Enter synagogue">
+                    <button type="button" id="addSynagogue" style="margin-bottom: 20px; margin-top: 10px;" class="btn btn-primary">Add synagogue</button>
+                    
+                </div>
+                <div class="form-group">
+                    <label >Synagogues Selected</label>
+                    <select id="synagoguesList" multiple="multiple" class="form-control" data-placeholder="Select synagogues associated" style="width: 100%;">
+                    </select>
+                </div>
+                <!-- Comments -->
+                <div class="form-group" style="display:grid;">
+                    <label for="exampleInputPassword1">Comments</label>
+                    <textarea name="Text1" cols="40" rows="5" id="commentsValue" style="resize: none;height: 106px;overflow-y: scroll;" maxlength="500" placeholder="Enter comments"></textarea>
+                </div>
+                <!-- Enable -->
+                 <div class="form-group">
+                    <input type="checkbox" id="enableValue" name="vehicle1">
+                    <label for="isMainValue"> Enable</label>
+                 </div>
+
+                <div class="card-footer">
+                    <button type="button" id="btncancel" class="btn btn-default btn-ok">Reset</button>
+                    <button style="left: 86%; position: relative;" id="btnsubmit" type="button" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="../../plugins/jquery/jquery.min.js"></script>
+<script>
+    var baseUrl = "@Url.Content("~")";
+    // Each marker is labeled with a single alphabetical character.
+    const labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let labelIndex = 0;
+    let poly;
+    let infoWindow;
+    let marker1, marker2;
+    let geodesicPoly;
+    var drawingManager;
+    var selectedShape;
+    var colors = ['#1E90FF', '#FF1493', '#32CD32', '#FF8C00', '#4B0082'];
+    var selectedColor;
+    var colorButtons = {};
+    var points = [];
+
+    function initMap() {
+        const myLatLng = { lat: -34.615505, lng: -58.7128069 };
+
+        const map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: 25.761681, lng: -80.191788 },
+            zoom: 6,
+            disableDefaultUI: true,
+            mapTypeControl: true,
+            mapTypeControlOptions: {
+                style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                position: google.maps.ControlPosition.TOP_CENTER,
+            },
+            zoomControl: true,
+            zoomControlOptions: {
+                position: google.maps.ControlPosition.LEFT_CENTER,
+            },
+            scaleControl: true,
+            streetViewControl: true,
+            streetViewControlOptions: {
+                position: google.maps.ControlPosition.LEFT_TOP,
+            },
+            fullscreenControl: true,
+        }); // Starting Point Buenos Aires
+        var polyOptions = {
+            strokeWeight: 0,
+            fillOpacity: 0.45,
+            editable: true,
+            strokeColor: "#ff1010",
+            fillColor: "#ff1010"
+        };
+        returnPoints(map);
+
+        drawingManager = new google.maps.drawing.DrawingManager({
+
+            drawingMode: google.maps.drawing.OverlayType.POLYGON,
+            //drawingMode: google.maps.drawing.OverlayType.MARKER,
+            drawingControl: true,
+            drawingControlOptions: {
+                position: google.maps.ControlPosition.TOP_CENTER,
+                drawingModes: [
+                    google.maps.drawing.OverlayType.POLYGON
+                ]
+            },
+            markerOptions: {
+                draggable: true
+            },
+            polylineOptions: {
+                editable: true
+            },
+            rectangleOptions: polyOptions,
+            circleOptions: polyOptions,
+            polygonOptions: polyOptions,
+            map: map
+        });
+
+        google.maps.event.addListener(drawingManager, 'overlaycomplete', function (e) {
+            var bounds = e.overlay.getPath().getArray();
+            points.push(bounds.toString());
+            console.log(points);
+            if (e.type != google.maps.drawing.OverlayType.MARKER) {
+                // Switch back to non-drawing mode after drawing a shape.
+                drawingManager.setDrawingMode(null);
+                // To hide:
+                drawingManager.setOptions({
+                    drawingControl: false
+                });
+                
+                // Add an event listener that selects the newly-drawn shape when the user
+                // mouses down on it.
+                var newShape = e.overlay;
+                newShape.type = e.type;
+
+                google.maps.event.addListener(newShape, 'click', function (e) {
+                    setSelection(newShape);
+                });
+                setSelection(newShape);
+                google.maps.event.addListener(newShape, 'mouseup', function (e) {
+                    var full_path = [];//initialize array for set coordinates.
+                    newShape.getPath().getArray().forEach(function (elem, index) {
+                        console.log(elem.toUrlValue());
+                        full_path.push("(" + elem.toUrlValue() + ")");
+
+                    });
+                    console.log(full_path);
+                    points = full_path;
+                    //var bounds = e.overlay.getPath().getArray();
+                    //points.push(bounds.toString());
+                });
+            }
+        });
+        //map.controls[google.maps.ControlPosition.TOP_CENTER].push(
+        //    document.getElementById("info")
+        //);
+        //marker1 = new google.maps.Marker({
+        //    map,
+        //    draggable: true,
+        //    position: { lat: 40.714, lng: -74.006 },
+        //});
+        //marker2 = new google.maps.Marker({
+        //    map,
+        //    draggable: true,
+        //    position: { lat: 48.857, lng: 2.352 },
+        //});
+        //google.maps.Polygon.prototype.move = function (latLng, shape, p) {
+        //    var lat = latLng.lat();
+        //    var lng = latLng.lng();
+
+        //    latDiff = shape.latLng.lat() - lat;
+        //    lngDiff = shape.latLng.lng() - lng;
+
+        //    for (i = 0; i < p.length; i++) {
+        //        pLat = p.getAt(i).lat();
+        //        pLng = p.getAt(i).lng();
+        //        p.setAt(i, new google.maps.LatLng(pLat - latDiff, pLng - lngDiff));
+        //    }
+        //    shape.latLng = latLng;
+        //}
+        returnPoints();
+        google.maps.event.addListener(drawingManager, 'drag', handleEvent);
+        google.maps.event.addListener(drawingManager, 'drawingmode_changed', clearSelection);
+        google.maps.event.addListener(map, 'click', clearSelection);
+        google.maps.event.addDomListener(document.getElementById('delete-button'), 'click', deleteSelectedShape);
+        //update();
+        //buildColorPalette();
+    }
+    function handleEvent(event) {
+        console.log("data: ",event);
+    }
+    function clearSelection() {
+        if (selectedShape) {
+            selectedShape.setEditable(false);
+            selectedShape = null;
+        }
+    }
+    function setSelection(shape) {
+        clearSelection();
+        selectedShape = shape;
+        shape.setEditable(true);
+        selectColor(shape.get('fillColor') || shape.get('strokeColor'));
+        //google.maps.event.addListener(shape.getPath(), 'set_at', calcar);
+        //google.maps.event.addListener(shape.getPath(), 'insert_at', calcar);
+    }
+    function deleteSelectedShape() {
+        if (selectedShape) {
+            selectedShape.setMap(null);
+            points = [];
+            drawingManager.setOptions({
+                drawingControl: true
+            });
+        }
+    }
+    function selectColor(color) {
+        selectedColor = color;
+        for (var i = 0; i < colors.length; ++i) {
+            var currColor = colors[i];
+            //colorButtons[currColor].style.border = currColor == color ? '2px solid #789' : '2px solid #fff';
+        }
+
+        // Retrieves the current options from the drawing manager and replaces the
+        // stroke or fill color as appropriate.
+        var polylineOptions = drawingManager.get('polylineOptions');
+        polylineOptions.strokeColor = color;
+        drawingManager.set('polylineOptions', polylineOptions);
+
+        var rectangleOptions = drawingManager.get('rectangleOptions');
+        rectangleOptions.fillColor = color;
+        drawingManager.set('rectangleOptions', rectangleOptions);
+
+        var circleOptions = drawingManager.get('circleOptions');
+        circleOptions.fillColor = color;
+        drawingManager.set('circleOptions', circleOptions);
+
+        var polygonOptions = drawingManager.get('polygonOptions');
+        polygonOptions.fillColor = color;
+        drawingManager.set('polygonOptions', polygonOptions);
+    }
+    function buildColorPalette() {
+        var colorPalette = document.getElementById('color-palette');
+        for (var i = 0; i < colors.length; ++i) {
+            var currColor = colors[i];
+            var colorButton = makeColorButton(currColor);
+            colorPalette.appendChild(colorButton);
+            colorButtons[currColor] = colorButton;
+        }
+        selectColor(colors[0]);
+    }
+    function setSelectedShapeColor(color) {
+        if (selectedShape) {
+            if (selectedShape.type == google.maps.drawing.OverlayType.POLYLINE) {
+                selectedShape.set('strokeColor', color);
+            } else {
+                selectedShape.set('fillColor', color);
+            }
+        }
+    }
+    function makeColorButton(color) {
+        var button = document.createElement('span');
+        button.className = 'color-button';
+        button.style.backgroundColor = color;
+        google.maps.event.addDomListener(button, 'click', function () {
+            selectColor(color);
+            setSelectedShapeColor(color);
+        });
+
+        return button;
+    }
+    function update() {
+        const path = [marker1.getPosition(), marker2.getPosition()];
+
+        poly.setPath(path);
+        geodesicPoly.setPath(path);
+
+        const heading = google.maps.geometry.spherical.computeHeading(
+            path[0],
+            path[1]
+        );
+
+        document.getElementById("heading").value = String(heading);
+        document.getElementById("origin").value = String(path[0]);
+        document.getElementById("destination").value = String(path[1]);
+    }
+    
+    function returnPoints(map){
+            $.ajax({
+            url: baseUrl + "/Establishment/ReturnEruvCoordinates",
+                type: "POST",
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+            }).done(function (res) {
+                if (res.status === 'success') {
+                    console.log(res.data);
+                    for(var i = 0;i<res.data.length;i++){
+                        const eruvCoords = res.data[i].eruvCoordinates;
+                        console.log("recorriendo",eruvCoords);
+                        const myPolygon = new google.maps.Polygon({
+                            paths: eruvCoords,
+                            draggable: false, // turn off if it gets annoying
+                            editable: false,
+                            strokeColor: "#bababa",
+                            strokeOpacity: 0.8,
+                            strokeWeight: 2,
+                            fillColor: "#bababa",
+                            fillOpacity: 0.35
+                        });
+                        myPolygon.setMap(map);
+                        //attachPolygonInfoWindow(myPolygon, ervuCoords, name);
+
+                    }
+                } else {
+                    toastr.error(res.message);
+                }
+                console.log('Success');
+            }).fail(function (e, s, t) {
+                console.log('Failed');
+            });
+    }
+
+    $(document).ready(function () {
+        //returnPoints();
+        $("#addSynagogue").click(function(e) {
+            var synagogue = document.getElementById("synagoguesValue").value;
+            var selectedSynagogues = document.getElementById("synagoguesList");
+            console.log(synagogue);
+            var opt = document.createElement('option');
+            opt.value = synagogue;
+            opt.innerHTML = synagogue;
+            opt.selected = true;
+            selectedSynagogues.appendChild(opt);
+        });
+        $("#btncancel").click(function (e) {
+            e.preventDefault();
+            window.location.href = "@Url.Action("Eruv", "Establishment")";
+        });
+        $("#btnsubmit").click(function (e) {
+            //Serialize the form datas.
+            
+            document.getElementById("btnsubmit").disabled = true;
+            const formData = new FormData();
+            formData.append('Name', document.getElementById('nameValue').value);
+            formData.append('Website', document.getElementById('websiteValue').value);
+            formData.append('Comments', document.getElementById('commentsValue').value);
+            formData.append('Phone', document.getElementById('phoneValue').value);
+            formData.append('Email', document.getElementById('emailValue').value);
+            formData.append('Rabbinate', document.getElementById('rabbinateValue').value);
+            formData.append('Points', points);
+            formData.append('HotlinePhone', document.getElementById('hotlinePhoneValue').value);
+            formData.append('Posek', document.getElementById('posekValue').value);
+            formData.append('Synagogues', $('#synagoguesList').val());
+            formData.append('City', document.getElementById('cityValue').value)
+            formData.append('Enable', $('#enableValue').is(":checked"));
+
+            $.ajax({
+                url: baseUrl + "/Establishment/Eruv",
+                type: "POST",
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                data: formData,
+            }).done(function (res) {
+                if (res.status === 'success') {
+                    toastr.success('The eruv was added successfully');
+                    setTimeout(function () {
+                        window.location.href = "@Url.Action("Eruv", "Establishment")";
+                    }, 2000);
+
+                } else {
+                    document.getElementById("btnsubmit").disabled = false;
+                    toastr.error(res.message);
+                }
+                console.log('Success');
+            }).fail(function (e, s, t) {
+                console.log('Failed');
+            });
+        });
+    });
+
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?libraries=geometry,drawing&key=AIzaSyCRJLTDv-YeDn8TIx7uYptHtuB5DwbXYJs&callback=initMap" async defer></script>

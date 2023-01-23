@@ -1,0 +1,1651 @@
+﻿@model KWB.Web.Models.NewFolder.ResponsePlace
+
+<head>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="../../plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="../../plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="../../plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="../../plugins/toastr/toastr.min.css">
+    <!-- daterange picker -->
+    <link rel="stylesheet" href="../../plugins/daterangepicker/daterangepicker.css">
+    <!-- iCheck for checkboxes and radio inputs -->
+    <link rel="stylesheet" href="../../plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- Bootstrap Color Picker -->
+    <link rel="stylesheet" href="../../plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css">
+    <!-- Tempusdominus Bootstrap 4 -->
+    <link rel="stylesheet" href="../../plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <!-- BS Stepper -->
+    <link rel="stylesheet" href="../../plugins/bs-stepper/css/bs-stepper.min.css">
+    <!-- dropzonejs -->
+    <link rel="stylesheet" href="../../plugins/dropzone/min/dropzone.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="../plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="../plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../css/adminlte.min.css">
+    <style>
+        #map {
+            position: absolute;
+            height: 9%;
+            top: 75px;
+            width: 45%;
+        }
+
+        #searchInput {
+            margin-top: 10px;
+            height: 35px;
+            width: 50px;
+            font-size: 15px;
+        }
+
+        #firstInput {
+            position: relative;
+            left: 53%;
+            width: 47%;
+        }
+        .without_ampm::-webkit-datetime-edit-ampm-field {
+           display: none;
+         }
+
+        input[type="time"]::-webkit-calendar-picker-indicator { background: none; display:none; }
+    </style>
+</head>
+<body style=" background-color: gray;">
+    <div class="content-wrapper">
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title" style="color:white;">Add a new Establishment</h3>
+                    </div>
+                    <form id="placeform">
+                        <div class="card-body">
+                            <!--Map-->
+                            <div class="form-group">
+                                <!-- Search input -->
+                                <input id="searchInput" class="controls" type="text" style="width:330px;" placeholder="Looking For...">
+                                <!-- Google map -->
+                                <div id="map"></div>
+                            </div>
+                            <div id="firstInput">
+                                <!-- Place Name -->
+                                <div class="form-group">
+                                    <label for="exampleInputEmail1">Establishment *</label>
+                                    <input asp-for="Name" name="name" class="form-control" id="nameValue" placeholder="Enter name" maxlength="150">
+                                </div>
+                                <!-- Latitude -->
+                                <div class="form-group">
+                                    <label for="exampleInputPassword1">Latitude *</label>
+                                    <input asp-for="Latitude" type="number" name="latitude" class="form-control" id="latValue" placeholder="Enter latitude">
+                                </div>
+                                <!-- Longitude -->
+                                <div class="form-group">
+                                    <label for="exampleInputPassword1">Longitude *</label>
+                                    <input asp-for="Longitude" type="number" name="longitude" class="form-control" id="lngValue" placeholder="Enter longitude">
+                                </div>
+                                
+                                <!-- PostalCode -->
+                                <div class="form-group">
+                                    <label for="exampleInputPassword1">ZipCode</label>
+                                    <input asp-for="ZipCode" name="postalCode" class="form-control" id="postalCodeValue" placeholder="Enter postalCode" maxlength="50">
+                                </div>
+                                <!-- Location -->
+                                <div class="form-group">
+                                    <label for="exampleInputPassword1">Address *</label>
+                                    <input asp-for="Location" name="location" class="form-control" id="locationValue" placeholder="Enter location" maxlength="300">
+                                </div>
+                            </div>
+                            <!-- Permanently_Closed -->
+                            <div class="form-group">
+                                <input type="checkbox" id="isOpenValue">
+                                <label> Permanently Closed</label>
+                            </div>
+                            <!-- Enable -->
+                            <div class="form-group">
+                                <input type="checkbox" checked id="enableValue" name="vehicle1">
+                                <label for="isMainValue"> Enable</label>
+                            </div>
+                            <!--Not Main Tags -->
+                            <div style="width: 50%;" class="form-group">
+                                <label>Tags</label>
+                                <select id="tagsValue" class="select2" multiple="multiple"  data-placeholder="Select the tags" style="width: 100%;">
+                                    @foreach (var tag in Model.TagsNotMainDB.Where(a=>a != "Questionable" && a != "NOT KOSHER").ToList())
+                                    {
+                                        <option  value="@tag">@tag</option>
+                                    }
+                                </select>
+                            </div>
+                            <div style="display: flex;">
+                                <!--Is must_see!-->
+                                <div style="position: relative; left: 53%; width: 47%; top: -50px; margin-bottom: -2.5%; " class="form-group">
+                                    <input type="checkbox" id="cantMissValue" name="vehicle1">
+                                    <label for="isMainValue"> Must See</label>
+                                </div>
+                                <!--Is Questionable-->
+                                <div style="position: relative; left: 33%; width: 47%; top: -50px; margin-bottom: -2.5%; " class="form-group">
+                                    <input type="checkbox" id="questionableValue" name="vehicle1">
+                                    <label for="isMainValue"> Questionable</label>
+                                </div>
+                                <!--Is Not Kosher-->
+                                <div style="position: relative; left: 15%; width: 47%; top: -50px; margin-bottom: -2.5%; " class="form-group">
+                                    <input type="checkbox" id="notKosherValue" name="vehicle1">
+                                    <label for="isMainValue"> Not Kosher</label>
+                                </div>
+                            </div>
+                            <!-- CertificationName -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Certification</label>
+                                        <select id="certValue" class="form-control select2" style="width: 100%;">
+                                            <option selected="selected">None</option>
+                                            @foreach (var certificationName in Model.Certifications.Select(a => a.Name))
+                                            {
+                                                <option>@certificationName</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Principal Tags Main -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Main Tag *</label>
+                                        <select id="principalTagsValue" class="select2" style="width: 100%;">
+                                            <option selected="selected">Select One</option>
+                                            @foreach (var tag in Model.TagsMainDB)
+                                            {
+                                                <option onclick="principalTag()" value=@tag>@tag</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Prayer Times -->
+                            <div class="container-fluid">
+                                <div class="row" style="display: block;width: 100%;">
+                                    <div style="width: 100%;max-width: 100% !important;" class="col-md-6">
+                                                <button type="button" onclick="removePrayerTime()" class="btn btn-danger">
+                                                    Remove Prayers
+                                                </button>
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h3 class="card-title">Prayer</h3>
+                                            </div>
+                                            <div class="card-body p-0">
+                                                <table id="prayerTimeDays" class="table table-sm table-bordered table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Day</th>
+                                                            <th>Shacharit</th>
+                                                            <th>Mincha</th>
+                                                            <th>Maariv</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>Sunday</td>
+                                                            <td>
+                                                                <div id="sundayShajarit">
+                                                                    <input type="time" id="shajaritTime" class="prayerTime"/>
+                                                                    <input type="time" id="shajaritTime2" class="prayerTime"/>
+                                                                    <input type="time" id="shajaritTime3" class="prayerTime"/>
+                                                                    <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('sundayShajarit')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div id="sundayMinja">
+                                                                    <input type="time" id="minjaTime" class="prayerTime"/>
+                                                                    <input type="time" id="minjaTime2" class="prayerTime"/>
+                                                                    <input type="time" id="minjaTime3" class="prayerTime"/>
+                                                                    <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('sundayMinja')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div id="sundayMaariv">
+                                                                    <input type="time" id="maarivTime" class="prayerTime"/>
+                                                                    <input type="time" id="maarivTime2" class="prayerTime"/>
+                                                                    <input type="time" id="maarivTime3" class="prayerTime"/>
+                                                                    <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('sundayMaariv')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Monday</td>
+                                                            <td id="mondayShajarit" class="rowSize">
+                                                                <input type="time" id="shajaritTime" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime2" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime3" class="prayerTime"/>
+                                                                <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('mondayShajarit')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="mondayMinja" class=" rowSize">
+                                                                <input type="time" id="minjaTime" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime2" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime3" class="prayerTime"/>
+                                                                <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('mondayMinja')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="mondayMaariv" class=" rowSize">
+                                                                <input type="time" id="maarivTime" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime2" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime3" class="prayerTime"/>
+                                                                <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('mondayMaariv')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Tuesday</td>
+                                                            <td id="tuesdayShajarit" class=" rowSize">
+                                                                <input type="time" id="shajaritTime" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime2" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime3" class="prayerTime"/>
+                                                                <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('tuesdayShajarit')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="tuesdayMinja" class=" rowSize">
+                                                                <input type="time" id="minjaTime" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime2" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime3" class="prayerTime"/>
+                                                                <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('tuesdayMinja')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="tuesdayMaariv" class=" rowSize">
+                                                                <input type="time" id="maarivTime" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime2" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime3" class="prayerTime"/>
+                                                                <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('tuesdayMaariv')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Wednesday</td>
+                                                            <td id="wednesdayShajarit" class=" rowSize">
+                                                                <input type="time" id="shajaritTime" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime2" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime3" class="prayerTime"/>
+                                                                <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('wednesdayShajarit')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="wednesdayMinja" class=" rowSize">
+                                                                <input type="time" id="minjaTime" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime2" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime3" class="prayerTime"/>
+                                                                <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('wednesdayMinja')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="wednesdayMaariv" class=" rowSize">
+                                                                <input type="time" id="maarivTime" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime2" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime3" class="prayerTime"/>
+                                                                <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('wednesdayMaariv')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Thursday</td>
+                                                            <td id="thursdayShajarit" class=" rowSize">
+                                                                <input type="time" id="shajaritTime" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime2" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime3" class="prayerTime"/>
+                                                                <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('thursdayShajarit')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="thursdayMinja" class=" rowSize">
+                                                                <input type="time" id="minjaTime" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime2" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime3" class="prayerTime"/>
+                                                                <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('thursdayMinja')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="thursdayMaariv" class=" rowSize">
+                                                                <input type="time" id="maarivTime" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime2" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime3" class="prayerTime"/>
+                                                                <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('thursdayMaariv')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Friday</td>
+                                                            <td id="fridayShajarit" class=" rowSize">
+                                                                <input type="time" id="shajaritTime" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime2" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime3" class="prayerTime"/>
+                                                                <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('fridayShajarit')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="fridayMinja" class=" rowSize">
+                                                                <input type="time" id="minjaTime" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime2" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime3" class="prayerTime"/>
+                                                                <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('fridayMinja')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="fridayMaariv" class=" rowSize">
+                                                                <input type="time" id="maarivTime" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime2" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime3" class="prayerTime"/>
+                                                                <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('fridayMaariv')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Saturday</td>
+                                                            <td id="saturdayShajarit" class=" rowSize">
+                                                                <input type="time" id="shajaritTime" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime2" class="prayerTime"/>
+                                                                <input type="time" id="shajaritTime3" class="prayerTime"/>
+                                                                <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('saturdayShajarit')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="saturdayMinja" class=" rowSize">
+                                                                <input type="time" id="minjaTime" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime2" class="prayerTime"/>
+                                                                <input type="time" id="minjaTime3" class="prayerTime"/>
+                                                                <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('saturdayMinja')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                            <td id="saturdayMaariv" class=" rowSize">
+                                                                <input type="time" id="maarivTime" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime2" class="prayerTime"/>
+                                                                <input type="time" id="maarivTime3" class="prayerTime"/>
+                                                                <button style="left: 50px; position: relative;" type="button" onclick="removePrayerTimeSection('saturdayMaariv')" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            
+                            <!-- Markers -->
+                            <table id="markers" class="table table-bordered table-striped">
+                                <button style="position: relative;top: 10px;" type="button" onclick="removeMarkersSelected()" class="btn btn-danger">
+                                    Remove check markers
+                                </button>
+                                <thead>
+                                    <tr>
+                                        <th>Tag Name</th>
+                                        <th>Picture</th>
+                                        <th>Selected</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var tag in Model.Markers)//markers
+                                    {
+                                        <tr style="display: none;">
+                                            <td >@tag.TagName</td>
+                                            <td style="text-align: center;"><img style="width: 30px;" src="data:image/png;base64,@tag.Marker" alt=""/></td>
+                                            <td><div style="text-align: center;"><input style="width: 30px;height: 16px;" type="checkbox" class="markers" id="marker @tag.TagID" onclick="selectMarker(@tag.TagID)" /></div></td>
+                                        </tr>
+                                     }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>Tag Name</th>
+                                        <th>Picture</th>
+                                        <th>Selected</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+                            <!-- About -->
+                            <div class="form-group" style="display:grid;">
+                                <label for="exampleInputPassword1">Kwb Highlight</label>
+                                <textarea name="Text1" cols="40" rows="3" id="aboutValue" style="resize: none;height: 106px;overflow-y: scroll;"placeholder="enter bullet"></textarea>
+                            </div>
+                            <!-- Price Level -->
+                            <div class="form-group">
+                                <label for="exampleInputPassword1">Price Level</label>
+                                <select id="priceLevelValue" style="width: 100%;">
+                                    <option value="0" selected="selected">0 (unknown)</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                            </div>
+                            <!-- Website -->
+                            <div class="form-group">
+                                <label for="exampleInputPassword1">Website</label>
+                                <input asp-for="Website" name="website" class="form-control" id="websiteValue" placeholder="Enter website" maxlength="1500">
+                            </div>
+                            <!-- Phone -->
+                            <div class="form-group">
+                                <label for="exampleInputPassword1">Phone</label>
+                                <input asp-for="Phone" name="website" class="form-control" id="phoneValue" placeholder="Enter phone" maxlength="50">
+                            </div>
+                            <!-- Rating -->
+                            <div class="form-group">
+                                <label for="exampleInputPassword1">Rating</label>
+                                <input asp-for="Rating" type="number" max="5" name="rating" class="form-control" id="ratingValue" placeholder="Enter rating">
+                            </div>
+                            <!-- GooglePlaceID -->
+                            <div class="form-group">
+                                <input type="hidden" asp-for="GooglePlaceID" class="form-control" id="googlePlaceIDValue">
+                            </div>
+                            <!-- Reviews Count -->
+                            <div class="form-group">
+                                <input type="hidden" asp-for="ReviewsCount" class="form-control" id="reviewsCountValue">
+                            </div>
+                            <!-- Location Tags -->
+                            <div class="form-group">
+                                <label>City & Country Guides</label>
+                                <select id="locationsValue" class="select2" multiple="multiple" data-placeholder="Select the guides" style="width: 100%;">
+                                    @foreach (var location in Model.LocationsDB.ToList())
+                                    {
+                                        <option value="@location">@location</option>
+                                    }
+                                </select>
+                            </div>
+                            <!-- File input Main-->
+                            <div class="form-group">
+                                <div class="form-group" style="width:50%;">
+                                    <label for="exampleInputFile">Main Picture (Recommended: 800x 386) *</label>
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            <input type="file" asp-for="ImageFile" class="custom-file-input" id="imageValue">
+                                            <label class="custom-file-label" id="imageLabelValue" for="exampleInputFile">Choose file</label>
+                                        </div>                                            
+                                        <button style="left: 50px; position: relative;" type="button" onclick="removeMainPicture()" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                    </div>
+                                </div>
+                                <img style="height: 150px; width: 150px;" src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="photo" id="mainPicture">
+                            </div>
+                            <!-- File input Secundary-->
+                            <div>
+                                <div class="form-group" style="width:50%;">
+                                    <label for="exampleInputFile">Secundary Picture (Recommended: 600x 600)</label>
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            <input type="file" asp-for="ImageFile" class="custom-file-input" id="secundaryPicture">
+                                            <label class="custom-file-label" id="secundaryLabelPicture" for="exampleInputFile">Choose file</label>
+                                        </div>
+                                        <button style="left: 50px; position: relative;" type="button" onclick="removeSecundaryPicture()" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                    </div>
+                                </div>
+                                <img style="height: 150px; width: 150px;" src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="photo" id="secundaryPictureImg">
+                                <div class="form-group" style="width:50%;">
+                                    <label for="exampleInputFile">Secundary Picture (Recommended: 600x 600)</label>
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            <input type="file" asp-for="ImageFile" class="custom-file-input" id="secundaryPicture2">
+                                            <label class="custom-file-label" id="secundaryLabelPicture2" for="exampleInputFile">Choose file</label>
+                                        </div>
+                                        <button style="left: 50px; position: relative;" type="button" onclick="removeSecundaryPicture2()" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                    </div>
+                                </div>
+                                <img style="height: 150px; width: 150px;" src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="photo" id="secundaryPicture2Img">
+
+                                <div class="form-group" style="width:50%;">
+                                    <label for="exampleInputFile">Secundary Picture (Recommended: 600x 600)</label>
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            <input type="file" asp-for="ImageFile" class="custom-file-input" id="secundaryPicture3">
+                                            <label class="custom-file-label" id="secundaryLabelPicture3" for="exampleInputFile">Choose file</label>
+                                        </div>
+                                        <button style="left: 50px; position: relative;" type="button" onclick="removeSecundaryPicture3()" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button>
+                                    </div>
+                                </div>
+                                <img style="height: 150px; width: 150px;" src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="photo" id="secundaryPicture3Img">
+                            </div>
+                            
+                            <!-- Extra photos -->
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h3 class="card-title">Extra Photos</h3>
+                                            </div>
+                                            <div class="card-body table-responsive p-0" style="height: 300px;">
+                                                <table class="table table-head-fixed text-nowrap table-bordered table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Extra Photo</th>
+                                                            <th>Img</th>
+                                                            <th>Category</th>
+                                                            <th>Delete</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>
+                                                                <div class="input-group">
+                                                                    <div class="custom-file">
+                                                                        <input type="file" asp-for="ImageFile" class="custom-file-input" id="extraPicture">
+                                                                        <label class="custom-file-label" id="extraLabelPicture" for="exampleInputFile">Choose file</label>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td><img style="height: 150px; width: 150px;" src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="photo" id="extraPictureImg"></td>
+                                                            <td>
+                                                                <select id="categoryValue" class="select2" style="width: 100%;">
+                                                                    <option  selected="selected"value="All">All</option>
+                                                                    <option value="Outside">Outside</option>
+                                                                    <option value="Inside">Inside</option>
+                                                                    <option value="Menu">Menu</option>
+                                                                    <option value="Drinks">Drinks</option>
+                                                                    <option value="Food">Food</option>
+                                                                    <option value="Rooms">Rooms</option>
+                                                                    <option value="Lobby">Lobby</option>
+                                                                    <option value="Activities">Activities</option>
+                                                                </select> 
+                                                            </td>
+                                                            <td><button type="button" onclick="removeExtraPicture(extraPictureImg,extraLabelPicture)" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <div class="input-group">
+                                                                    <div class="custom-file">
+                                                                        <input type="file" asp-for="ImageFile" class="custom-file-input" id="extraPicture1">
+                                                                        <label class="custom-file-label" id="extraLabelPicture1" for="exampleInputFile">Choose file</label>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td><img style="height: 150px; width: 150px;" src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="photo" id="extraPictureImg1"></td>
+                                                            <td>
+                                                                <select id="categoryValue2" class="select2" style="width: 100%;">
+                                                                    <option  selected="selected"value="All">All</option>
+                                                                    <option value="Outside">Outside</option>
+                                                                    <option value="Inside">Inside</option>
+                                                                    <option value="Menu">Menu</option>
+                                                                    <option value="Drinks">Drinks</option>
+                                                                    <option value="Food">Food</option>
+                                                                    <option value="Rooms">Rooms</option>
+                                                                    <option value="Lobby">Lobby</option>
+                                                                    <option value="Activities">Activities</option>
+                                                                </select> 
+                                                            </td>
+                                                            <td><button type="button" onclick="removeExtraPicture(extraPictureImg1,extraLabelPicture1)" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <div class="input-group">
+                                                                    <div class="custom-file">
+                                                                        <input type="file" asp-for="ImageFile" class="custom-file-input" id="extraPicture2">
+                                                                        <label class="custom-file-label" id="extraLabelPicture2" for="exampleInputFile">Choose file</label>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td><img style="height: 150px; width: 150px;" src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="photo" id="extraPictureImg2"></td>
+                                                            <td>
+                                                                <select id="categoryValue3" class="select2" style="width: 100%;">
+                                                                    <option selected="selected" value="All">All</option>
+                                                                    <option value="Outside">Outside</option>
+                                                                    <option value="Inside">Inside</option>
+                                                                    <option value="Menu">Menu</option>
+                                                                    <option value="Drinks">Drinks</option>
+                                                                    <option value="Food">Food</option>
+                                                                    <option value="Rooms">Rooms</option>
+                                                                    <option value="Lobby">Lobby</option>
+                                                                    <option value="Activities">Activities</option>
+                                                                </select> 
+                                                            </td>
+                                                            <td><button type="button" onclick="removeExtraPicture(extraPictureImg2,extraLabelPicture2)" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <div class="input-group">
+                                                                    <div class="custom-file">
+                                                                        <input type="file" asp-for="ImageFile" class="custom-file-input" id="extraPicture3">
+                                                                        <label class="custom-file-label" id="extraLabelPicture3" for="exampleInputFile">Choose file</label>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td><img style="height: 150px; width: 150px;" src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="photo" id="extraPictureImg3"></td>
+                                                            <td>
+                                                                <select id="categoryValue4" class="select2" style="width: 100%;">
+                                                                    <option selected="selected"value="All">All</option>
+                                                                    <option value="Outside">Outside</option>
+                                                                    <option value="Inside">Inside</option>
+                                                                    <option value="Menu">Menu</option>
+                                                                    <option value="Drinks">Drinks</option>
+                                                                    <option value="Food">Food</option>
+                                                                    <option value="Rooms">Rooms</option>
+                                                                    <option value="Lobby">Lobby</option>
+                                                                    <option value="Activities">Activities</option>
+                                                                </select> 
+                                                            </td>
+                                                            <td><button type="button" onclick="removeExtraPicture(extraPictureImg3,extraLabelPicture3)" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <div class="input-group">
+                                                                    <div class="custom-file">
+                                                                        <input type="file" asp-for="ImageFile" class="custom-file-input" id="extraPicture4">
+                                                                        <label class="custom-file-label" id="extraLabelPicture4" for="exampleInputFile">Choose file</label>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td><img style="height: 150px; width: 150px;" src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="photo" id="extraPictureImg4"></td>
+                                                            <td>
+                                                                <select id="categoryValue5" class="select2" style="width: 100%;">
+                                                                    <option selected="selected" value="All">All</option>
+                                                                    <option value="Outside">Outside</option>
+                                                                    <option value="Inside">Inside</option>
+                                                                    <option value="Menu">Menu</option>
+                                                                    <option value="Drinks">Drinks</option>
+                                                                    <option value="Food">Food</option>
+                                                                    <option value="Rooms">Rooms</option>
+                                                                    <option value="Lobby">Lobby</option>
+                                                                    <option value="Activities">Activities</option>
+                                                                </select> 
+                                                            </td>
+                                                            <td><button type="button" onclick="removeExtraPicture(extraPictureImg4,extraLabelPicture4)" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <div class="input-group">
+                                                                    <div class="custom-file">
+                                                                        <input type="file" asp-for="ImageFile" class="custom-file-input" id="extraPicture5">
+                                                                        <label class="custom-file-label" id="extraLabelPicture5" for="exampleInputFile">Choose file</label>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td><img style="height: 150px; width: 150px;" src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="photo" id="extraPictureImg5"></td>
+                                                            <td>
+                                                                <select id="categoryValue6" class="select2" style="width: 100%;">
+                                                                    <option selected="selected" value="All">All</option>
+                                                                    <option value="Outside">Outside</option>
+                                                                    <option value="Inside">Inside</option>
+                                                                    <option value="Menu">Menu</option>
+                                                                    <option value="Drinks">Drinks</option>
+                                                                    <option value="Food">Food</option>
+                                                                    <option value="Rooms">Rooms</option>
+                                                                    <option value="Lobby">Lobby</option>
+                                                                    <option value="Activities">Activities</option>
+                                                                </select> 
+                                                            </td>
+                                                            <td><button type="button" onclick="removeExtraPicture(extraPictureImg5,extraLabelPicture5)" class="btn btn-danger"><i class="nav-icon fa fa-times"></i></button></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                         
+                            <!-- hours opening -->
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h3 class="card-title">Opening Hours</h3>
+                                            </div>
+                                            <div class="card-body p-0">
+                                                <table class="table table-sm table-bordered table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Day</th>
+                                                            <th>Hour</th>
+                                                            @*style="width: 40px"*@
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>Monday</td>
+                                                            <td> <input type="time" id="opMondayValue" class=""  placeholder="hh:mm"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Tuesday</td>
+                                                            <td><input type="time" id="opTuesdayValue" class=""  placeholder="hh:mm"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Wednesday</td>
+                                                            <td><input type="time" id="opWednesdayValue" class=""  placeholder="hh:mm"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Thursday</td>
+                                                            <td><input type="time" id="opThursdayValue" class=""  placeholder="hh:mm"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Friday</td>
+                                                            <td><input type="time" id="opFridayValue" class=""  placeholder="hh:mm"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Saturday</td>
+                                                            <td><input type="time" id="opSaturdayValue" class=""  placeholder="hh:mm"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Sunday</td>
+                                                            <td><input type="time" id="opSundayValue" class=""  placeholder="hh:mm"></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h3 class="card-title">Closing Hours</h3>
+                                            </div>
+                                            <div class="card-body p-0">
+                                                <table class="table table-sm table-bordered table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Day</th>
+                                                            <th>Hour</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>Monday</td>
+                                                            <td><input id="clMondayValue" class=""  type="time" placeholder="hh:mm"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Tuesday</td>
+                                                            <td><input id="clTuesdayValue" class="" type="time" placeholder="hh:mm"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Wednesday</td>
+                                                            <td><input id="clWednesdayValue" class="" type="time" placeholder="hh:mm"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Thursday</td>
+                                                            <td><input id="clThursdayValue" class="" type="time" placeholder="hh:mm"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Friday</td>
+                                                            <td><input id="clFridayValue" class="" type="time" placeholder="hh:mm"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Saturday</td>
+                                                            <td><input id="clSaturdayValue" class="" type="time" placeholder="hh:mm"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Sunday</td>
+                                                            <td><input id="clSundayValue" class="" type="time" placeholder="hh:mm"></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Reviews -->
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h3 class="card-title">Reviews</h3>
+                                            </div>
+                                            <div class="card-body table-responsive p-0" style="height: 300px;">
+                                                <table class="table table-head-fixed text-nowrap table-bordered table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Author Name</th>
+                                                            <th>Author Photo</th>
+                                                            <th>Rating</th>
+                                                            <th>Text</th>
+                                                            <th>Relative Time</th>
+                                                            <th>Time in Days</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td><input id="authorNameValue1" class="" disabled></td>
+                                                            <td><input id="authorPhotoValue1" class="" disabled></td>
+                                                            <td><input id="authorRatingValue1" class="" disabled></td>
+                                                            <td><input id="authorTextValue1" class="" disabled></td>
+                                                            <td><input id="authorRelativeTimeValue1" class="" disabled></td>
+                                                            <td><input id="authorTimeinDaysValue1" class="" disabled></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><input id="authorNameValue2" class="" disabled></td>
+                                                            <td><input id="authorPhotoValue2" class="" disabled></td>
+                                                            <td><input id="authorRatingValue2" class=""  disabled></td>
+                                                            <td><input id="authorTextValue2" class="" disabled></td>
+                                                            <td><input id="authorRelativeTimeValue2" class="" disabled></td>
+                                                            <td><input id="authorTimeinDaysValue2" class="" disabled></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><input id="authorNameValue3" class="" disabled></td>
+                                                            <td><input id="authorPhotoValue3" class="" disabled></td>
+                                                            <td><input id="authorRatingValue3" class="" disabled></td>
+                                                            <td><input id="authorTextValue3" class="" disabled></td>
+                                                            <td><input id="authorRelativeTimeValue3" class="" disabled></td>
+                                                            <td><input id="authorTimeinDaysValue3" class="" disabled></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><input id="authorNameValue4" class="" disabled></td>
+                                                            <td><input id="authorPhotoValue4" class="" disabled></td>
+                                                            <td><input id="authorRatingValue4" class="" disabled></td>
+                                                            <td><input id="authorTextValue4" class="" disabled></td>
+                                                            <td><input id="authorRelativeTimeValue4" class="" disabled></td>
+                                                            <td><input id="authorTimeinDaysValue4" class="" disabled></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><input id="authorNameValue5" class="" disabled></td>
+                                                            <td><input id="authorPhotoValue5" class="" disabled></td>
+                                                            <td><input id="authorRatingValue5" class="" disabled></td>
+                                                            <td><input id="authorTextValue5" class="" disabled></td>
+                                                            <td><input id="authorRelativeTimeValue5" class="" disabled></td>
+                                                            <td><input id="authorTimeinDaysValue5" class="" disabled></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                         
+                        </div>
+                        <div class="card-footer">
+                            <button type="button" id="btncancel" class="btn btn-default btn-ok">Reset</button>
+                            <button style="left: 86%; position: relative;" id="btnsubmit" type="button" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!--Delete-->
+        <div class="modal fade" id="modal-delete">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title w-100">Are you sure?</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Do you really want to delete this records? This process cannot be undone.</p>
+                        <input type="hidden" id="idValue">
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" id="btnDelete" class="btn btn-danger btn-ok">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+    <script src="../../plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="../../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>   
+    <!-- Select2 -->
+    <script src="../../plugins/select2/js/select2.full.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="../../plugins/sweetalert2/sweetalert2.min.js"></script>
+    <!-- Select2 -->
+    <script src="../../plugins/select2/js/select2.full.min.js"></script>
+    <!-- Toastr -->
+    <script src="../../plugins/toastr/toastr.min.js"></script>
+    <!-- Bootstrap4 Duallistbox -->
+    <script src="../../plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>
+    <!-- InputMask -->
+    <script src="../../plugins/moment/moment.min.js"></script>
+    <script src="../../plugins/inputmask/jquery.inputmask.min.js"></script>
+    <!-- bootstrap color picker -->
+    <script src="../../plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+    <script src="../../plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+    <!-- BS-Stepper -->
+    <script src="../../plugins/bs-stepper/js/bs-stepper.min.js"></script>
+    <!-- dropzonejs -->
+    <script src="../../plugins/dropzone/min/dropzone.min.js"></script>
+        <!-- DataTables  & Plugins -->
+    <script src="../../plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="../../plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="../../plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="../../plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="../../plugins/jszip/jszip.min.js"></script>
+    <script src="../../plugins/pdfmake/pdfmake.min.js"></script>
+    <script src="../../plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="../js/adminlte.min.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="../js/demo.js"></script>
+    <!-- Page specific script -->
+@*    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+*@    <script src="https://maps.googleapis.com/maps/api/js?libraries=places&language=en&key=AIzaSyCRJLTDv-YeDn8TIx7uYptHtuB5DwbXYJs&callback=initMap" async defer></script>
+
+
+    <!--Map Script-->
+    <script> 
+        var showAutoComplete = true;
+        var contador = 0;
+        var baseUrl = "@Url.Content("~")";
+        function initMap() {
+            console.log("initMap start");
+            const map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -34.615505, lng: -58.7128069 },
+                zoom: 6,
+                mapTypeControl: false,
+                streetViewControl: false
+            }); // Starting Point Buenos Aires
+            var input = document.getElementById('searchInput');
+            autocompletePlace(input.value.length);
+            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+            
+            var autocomplete = new google.maps.places.Autocomplete(input);
+            autocomplete.bindTo('bounds', map);
+            var infowindow = new google.maps.InfoWindow();
+
+            const marker = new google.maps.Marker({
+                map,
+                anchorPoint: new google.maps.Point(0, -29),
+            });
+            var cantMarkers = 0;
+            //Starting to read data
+            if(showAutoComplete){
+                autocomplete.addListener('place_changed', function () {
+                autocompletePlace(input.value.length);
+                contador = contador +1;
+                console.log("contador: " +  contador);
+                infowindow.close();
+                marker.setVisible(false);
+                var place = autocomplete.getPlace();
+                console.log(place);
+                console.log(autocomplete);
+                if (!place.geometry) {
+                    window.alert("Autocomplete's returned place contains no geometry");
+                    return;
+                }
+
+                // If the place has a geometry, then present it on a map.
+                if (place.geometry.viewport) {
+                    map.fitBounds(place.geometry.viewport);
+                } else {
+                    map.setCenter(place.geometry.location);
+                    map.setZoom(17);
+                }
+                marker.setPosition(place.geometry.location);
+                marker.setVisible(true);
+
+                var address = '';
+                if (place.address_components) {
+                    address = [
+                        (place.address_components[0] && place.address_components[0].short_name || ''),
+                        (place.address_components[1] && place.address_components[1].short_name || ''),
+                        (place.address_components[2] && place.address_components[2].short_name || '')
+                    ].join(' ');
+                }
+
+                infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
+                infowindow.open(map, marker);
+                console.log("place: " +  place);
+                //Starting to add values
+                // Name details
+                document.getElementById("nameValue").value = place.name;
+                // Location details
+                if (place.formatted_address != null)
+                    document.getElementById("locationValue").value = place.formatted_address;
+                // Lat details
+                if (place.geometry.location.lat() != null)
+                    document.getElementById('latValue').value = place.geometry.location.lat();
+                // Lng details
+                if (place.geometry.location.lng() != null)
+                    document.getElementById('lngValue').value = place.geometry.location.lng();
+
+                // Location details
+                for (var i = 0; i < place.address_components?.length; i++) {
+                    if (place.address_components[i].types[0] == 'postal_code') {
+                        document.getElementById('postalCodeValue').value = place.address_components[i].long_name;
+                    }
+                }
+                // Hours details
+                if (place.opening_hours?.periods !== undefined) {
+                    for (var i = 0; i < place.opening_hours.periods?.length; i++) {
+                        try { var op = place.opening_hours.periods[i].open.time; responseHour(i, op, true) }
+                        catch (e) { responseHour(i, "", true) }
+
+                        try { var cl = place.opening_hours.periods[i].close.time; responseHour(i, cl, false) }
+                        catch (e) { responseHour(i, "", false) }
+                    }
+                }
+                // Reviews details
+                if (place.reviews !== undefined) {
+                    for (var i = 0; i < place.reviews?.length; i++) {
+                        if (place.reviews[i].author_name != null)
+                            document.getElementById('authorNameValue' + (i + 1)).value = place.reviews[i].author_name;
+
+                        if (place.reviews[i].profile_photo_url != null)
+                            document.getElementById('authorPhotoValue' + (i + 1)).value = place.reviews[i].profile_photo_url;
+
+                        if (place.reviews[i].rating != null)
+                            document.getElementById('authorRatingValue' + (i + 1)).value = place.reviews[i].rating;
+
+                        if (place.reviews[i].relative_time_description != null)
+                            document.getElementById('authorRelativeTimeValue' + (i + 1)).value = place.reviews[i].relative_time_description;
+
+                        if (place.reviews[i].text != null)
+                            document.getElementById('authorTextValue' + (i + 1)).value = place.reviews[i].text;
+                        document.getElementById('authorTimeinDaysValue' + (i + 1)).value = place.reviews[i].time;
+                    }
+                }
+
+                if (place.rating != null)
+                    document.getElementById('ratingValue').value = place.rating;
+
+                if (place.international_phone_number != null)
+                    document.getElementById('phoneValue').value = place.international_phone_number;
+
+                if (place.website != null)
+                    document.getElementById('websiteValue').value = place.website;
+
+                document.getElementById('googlePlaceIDValue').value = place.place_id;
+                document.getElementById('reviewsCountValue').value = place.user_ratings_total;
+                document.getElementById('priceLevelValue').value = place.price_level == null ? "0" : place.price_level;
+                var photos = "";
+                console.log(place);
+                if (place.photos !== undefined) {
+                    console.log("entro photo");
+                    for (var i = 0; i < place.photos?.length; i++) {
+                        var googlePhoto = place.photos[i].getUrl({'maxWidth': 500, 'maxHeight': 500});
+                        if(i==0){$('#imageLabelValue').html(googlePhoto);document.getElementById('mainPicture').src = googlePhoto;}
+                        else if(i==1){$('#secundaryLabelPicture').html(googlePhoto); document.getElementById('secundaryPictureImg').src = googlePhoto;}
+                        else if(i==2){$('#secundaryLabelPicture2').html(googlePhoto);document.getElementById('secundaryPicture2Img').src = googlePhoto;}
+                        else if(i==3){$('#secundaryLabelPicture3').html(googlePhoto);document.getElementById('secundaryPicture3Img').src = googlePhoto;}
+                        else if(i==4){$('#extraLabelPicture').html(googlePhoto);document.getElementById('extraPictureImg').src = googlePhoto;}
+                        else if(i==5){$('#extraLabelPicture1').html(googlePhoto);document.getElementById('extraPictureImg1').src = googlePhoto;}
+                        else if(i==6){$('#extraLabelPicture2').html(googlePhoto);document.getElementById('extraPictureImg2').src = googlePhoto;}
+                        else if(i==7){$('#extraLabelPicture3').html(googlePhoto);document.getElementById('extraPictureImg3').src = googlePhoto;}
+                        else if(i==8){$('#extraLabelPicture4').html(googlePhoto);document.getElementById('extraPictureImg4').src = googlePhoto;}
+                        else if(i==9){$('#extraLabelPicture5').html(googlePhoto);document.getElementById('extraPictureImg5').src = googlePhoto;}
+                    }
+                }
+            });
+
+            }
+        }
+        function autocompletePlace(search){
+            if(search!=2){
+                console.log(search);
+            }
+        }
+        function responseHour(day, hour, isOpenTime) {
+            if (hour == null || hour.length < 1) { hour = "00:00" }
+            else if(!hour.includes(':')){hour = correctHour(hour,2)}
+            switch (day) {
+                case 0:
+                    isOpenTime ? document.getElementById('opSundayValue').value = hour : document.getElementById('clSundayValue').value = hour
+                    break;
+                case 1:
+                    isOpenTime ? document.getElementById('opMondayValue').value = hour : document.getElementById('clMondayValue').value = hour
+                    break;
+                case 2:
+                    isOpenTime ? document.getElementById('opTuesdayValue').value = hour : document.getElementById('clTuesdayValue').value = hour
+                    break;
+                case 3:
+                    isOpenTime ? document.getElementById('opWednesdayValue').value = hour : document.getElementById('clWednesdayValue').value = hour
+                    break;
+                case 4:
+                    isOpenTime ? document.getElementById('opThursdayValue').value = hour : document.getElementById('clThursdayValue').value = hour
+                    break;
+                case 5:
+                    isOpenTime ? document.getElementById('opFridayValue').value = hour : document.getElementById('clFridayValue').value = hour
+                    break;
+                case 6:
+                    isOpenTime ? document.getElementById('opSaturdayValue').value = hour : document.getElementById('clSaturdayValue').value = hour
+                    break;
+                default:
+                    console.log("not found");
+            }
+        }
+        function correctHour(time,position) {
+           return time.slice(0, position) + ":" + (time).slice(position);  
+        }
+    </script>
+    <!--Images Script-->
+    <script type="application/javascript">
+        $('#imageValue').change(function(e){
+            var size = $('#imageValue')[0].files[0].size * 0.001;
+            console.log('This file size iss: ' + size);
+            if(size>1500){
+                alert("the file exceeded the limit of 1.5 MB");
+            }
+            else{
+                var fileName = e.target.files[0].name;
+                $('#imageLabelValue').html(fileName);
+                document.getElementById('mainPicture').src = "https://thumbs.dreamstime.com/b/pictogram-cloud-upload-arrow-vector-illustration-symbol-icon-eps-file-available-120083421.jpg";
+            }
+        });
+        $('#urlValue1').change(function(e){
+          var fileName = e.target.files[0].name;
+          $('#urlLabelValue1').html(fileName);
+        });
+        $('#urlValue2').change(function(e){
+          var fileName = e.target.files[0].name;
+          $('#urlLabelValue2').html(fileName);
+        });
+        $('#urlValue3').change(function(e){
+          var fileName = e.target.files[0].name;
+          $('#urlLabelValue3').html(fileName);
+        });
+        $('#imagePhotoValue').change(function(e){
+          var fileName = e.target.files[0].name;
+          $('#imagePhotoLabelValue').html(fileName);
+        });
+        $('#secundaryPicture').change(function(e){
+            var size = $('#secundaryPicture')[0].files[0].size * 0.001;
+            console.log('This file size iss: ' + size);
+            if(size>1500){
+                alert("the file exceeded the limit of 1.5 MB");
+            }else{
+                var fileName = e.target.files[0].name;
+                $('#secundaryLabelPicture').html(fileName);
+                document.getElementById('secundaryPictureImg').src = "https://thumbs.dreamstime.com/b/pictogram-cloud-upload-arrow-vector-illustration-symbol-icon-eps-file-available-120083421.jpg";
+            }
+        });
+        $('#secundaryPicture2').change(function(e){
+            var size = $('#secundaryPicture2')[0].files[0].size * 0.001;
+            console.log('This file size iss: ' + size);
+            if(size>1500){
+                alert("the file exceeded the limit of 1.5 MB");
+            }else{      
+                var fileName = e.target.files[0].name;
+                $('#secundaryLabelPicture2').html(fileName);
+                document.getElementById('secundaryPicture2Img').src = "https://thumbs.dreamstime.com/b/pictogram-cloud-upload-arrow-vector-illustration-symbol-icon-eps-file-available-120083421.jpg";
+            }
+        });
+        $('#secundaryPicture3').change(function(e){
+            var size = $('#secundaryPicture3')[0].files[0].size * 0.001;
+            console.log('This file size iss: ' + size);
+            if(size>1500){
+                alert("the file exceeded the limit of 1.5 MB");
+            }else{  
+                  var fileName = e.target.files[0].name;
+                  $('#secundaryLabelPicture3').html(fileName);
+                  document.getElementById('secundaryPicture3Img').src = "https://thumbs.dreamstime.com/b/pictogram-cloud-upload-arrow-vector-illustration-symbol-icon-eps-file-available-120083421.jpg";
+            }
+        });
+        $('#extraPicture').change(function(e){
+            var size = $('#extraPicture')[0].files[0].size * 0.001;
+            console.log('This file size iss: ' + size);
+            if(size>1500){
+                alert("the file exceeded the limit of 1.5 MB");
+            }else{  
+                var fileName = e.target.files[0].name;
+                $('#extraLabelPicture').html(fileName);
+                document.getElementById('extraPictureImg').src = "https://thumbs.dreamstime.com/b/pictogram-cloud-upload-arrow-vector-illustration-symbol-icon-eps-file-available-120083421.jpg";
+            }
+        });
+        $('#extraPicture1').change(function(e){
+            var size = $('#extraPicture1')[0].files[0].size * 0.001;
+            console.log('This file size iss: ' + size);
+            if(size>1500){
+                alert("the file exceeded the limit of 1.5 MB");
+            }else{ 
+              var fileName = e.target.files[0].name;
+              $('#extraLabelPicture1').html(fileName);
+              document.getElementById('extraPictureImg1').src = "https://thumbs.dreamstime.com/b/pictogram-cloud-upload-arrow-vector-illustration-symbol-icon-eps-file-available-120083421.jpg";
+            }
+           });
+        $('#extraPicture2').change(function(e){
+            var size = $('#extraPicture2')[0].files[0].size * 0.001;
+            console.log('This file size iss: ' + size);
+            if(size>1500){
+                alert("the file exceeded the limit of 1.5 MB");
+            }else{ 
+                var fileName = e.target.files[0].name;
+              $('#extraLabelPicture2').html(fileName);
+              document.getElementById('extraPictureImg2').src = "https://thumbs.dreamstime.com/b/pictogram-cloud-upload-arrow-vector-illustration-symbol-icon-eps-file-available-120083421.jpg";
+            }
+        });
+        $('#extraPicture3').change(function(e){
+            var size = $('#extraPicture3')[0].files[0].size * 0.001;
+            console.log('This file size iss: ' + size);
+            if(size>1500){
+                alert("the file exceeded the limit of 1.5 MB");
+            }else{ 
+                var fileName = e.target.files[0].name;
+                 $('#extraLabelPicture3').html(fileName);
+                 document.getElementById('extraPictureImg3').src = "https://thumbs.dreamstime.com/b/pictogram-cloud-upload-arrow-vector-illustration-symbol-icon-eps-file-available-120083421.jpg";
+            }
+             });
+        $('#extraPicture4').change(function(e){
+            var size = $('#extraPicture4')[0].files[0].size * 0.001;
+            console.log('This file size iss: ' + size);
+            if(size>1500){
+                alert("the file exceeded the limit of 1.5 MB");
+            }else{ 
+                var fileName = e.target.files[0].name;
+                $('#extraLabelPicture4').html(fileName);
+                document.getElementById('extraPictureImg4').src = "https://thumbs.dreamstime.com/b/pictogram-cloud-upload-arrow-vector-illustration-symbol-icon-eps-file-available-120083421.jpg";
+       
+            }
+           });
+        $('#extraPicture5').change(function(e){
+            var size = $('#extraPicture5')[0].files[0].size * 0.001;
+            console.log('This file size iss: ' + size);
+            if(size>1500){
+                alert("the file exceeded the limit of 1.5 MB");
+            }else{ 
+                var fileName = e.target.files[0].name;
+                $('#extraLabelPicture5').html(fileName);
+                 document.getElementById('extraPictureImg5').src = "https://thumbs.dreamstime.com/b/pictogram-cloud-upload-arrow-vector-illustration-symbol-icon-eps-file-available-120083421.jpg";
+            }
+          });
+    </script>
+    <!--Data Table-->
+    <script>
+        $(function () {
+                $.noConflict();
+                //$('#markers').DataTable();
+                $("#markers").DataTable({
+                    "paging": false,"responsive": true, "lengthChange": true,"stateSave": true, "autoWidth": false
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+        });
+    </script>
+    <!--Toast Script-->
+    <script>
+        $(function () {
+            var Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 100
+            });
+        });
+    </script>
+    <!--Form Script-->
+    <script>
+        var element = "";
+        var cont = 1;
+        var markerSelectedID = 0;
+        var listTagMarker = [];
+
+        function muestraAlerta(evento) {
+            evento.remove();
+        }
+        function removePrayerTime(){
+            var inputsTime = document.getElementsByClassName("prayerTime");
+            for(var i=0;i<inputsTime.length;i++){
+                inputsTime[i].value = "";
+            }
+        }
+        function isEmptyPrayerTime(){
+            var isEmpty = true;
+            var inputsTime = document.getElementsByClassName("prayerTime");
+            for(var i=0;i<inputsTime.length;i++){
+                if(inputsTime[i].value != ""){isEmpty=false;}
+            }
+            return isEmpty;
+        }
+        function addMarkerList() {
+            console.log("entro");
+            var x = document.getElementById("tagsValue").value;
+            console.log("ver: " + x);
+            //var marker = searchMarker();
+        }
+        function selectMarker(id) {
+            markerSelectedID = id;
+            var markerInput = document.getElementById("marker " + id);
+            var markersInputs = document.getElementsByClassName("markers");
+            for(var i = 0;i<markersInputs.length;i++){
+                markersInputs[i].checked = false;
+            }
+            markerInput.checked = true;
+            console.log(markerSelectedID);
+        }
+        function removeMainPicture(){
+            document.getElementById('imageValue').value = "";
+            $('#imageLabelValue').html("Choose file");
+            document.getElementById('mainPicture').src = "https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg";
+        }
+        function removeSecundaryPicture(){
+            document.getElementById('secundaryPicture').value = "";
+            $('#secundaryLabelPicture').html("Choose file");
+            document.getElementById('secundaryPictureImg').src = "https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg";
+        }
+        function removeSecundaryPicture2(){
+            document.getElementById('secundaryPicture2').value = "";
+            $('#secundaryLabelPicture2').html("Choose file");
+            document.getElementById('secundaryPicture2Img').src = "https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg";
+        }
+        function removeSecundaryPicture3(){
+            document.getElementById('secundaryPicture3').value = "";
+            $('#secundaryLabelPicture3').html("Choose file");
+            document.getElementById('secundaryPicture3Img').src = "https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg";
+        }
+        function removeExtraPicture(id,idLabel){
+            document.getElementById(id.id).value = "";
+            $('#'+idLabel.id).html("Choose file");
+            document.getElementById(id.id).src = "https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg";
+        }
+        function removeShajaritTime(){
+            document.getElementById("shajaritTime").value = "";
+            document.getElementById("shajaritTime2").value = "";
+            document.getElementById("shajaritTime3").value = "";
+        }
+        function removeMinjaTime(){
+            document.getElementById("minjaTime").value = "";
+            document.getElementById("minjaTime2").value = "";
+            document.getElementById("minjaTime3").value = "";
+        }
+        function removeArvitTime(){
+            document.getElementById("arvitTime").value = "";
+            document.getElementById("arvitTime2").value = "";
+            document.getElementById("arvitTime3").value = "";
+        }
+        function removePrayerTimeSection(divID){
+            var list = document.getElementById(divID).getElementsByTagName('input');
+            for (let i = 0; i < list.length; i++) {
+                list[i].value = "";
+            }
+        }
+        function removeMarkersSelected(){
+            markerSelectedID = 0;
+            var markersInputs = document.getElementsByClassName("markers");
+            for(var i = 0;i<markersInputs.length;i++){
+                markersInputs[i].checked = false;
+            }
+        }
+        function search(tag){
+            console.log("buscaquedo", tag);
+            const tableReg = document.getElementById('markers');
+            let total = 0;
+
+            for (let i = 1; i < tableReg.rows.length; i++) {
+                // Si el td tiene la clase "noSearch" no se busca en su cntenido
+                if (tableReg.rows[i].classList.contains("noSearch")) {
+                    continue;
+                }
+                let found = false;
+                let sameText = false;
+                const cellsOfRow = tableReg.rows[i].getElementsByTagName('td');
+                // Recorremos todas las celdas
+                for (let j = 0; j < cellsOfRow.length && !found; j++) {
+                    const compareWith = cellsOfRow[j].innerHTML;
+                    // Buscamos el texto en el contenido de la celda
+                    if (tag.includes(compareWith)) {
+                        console.log(cellsOfRow[j].innerHTML.toLowerCase());
+                        found = true;
+                        total++;
+                    }
+                }
+                if (found) {
+                    console.log("found: ",tableReg.rows[i]);
+                    tableReg.rows[i].style.display = '';
+                } else {
+                    // si no ha encontrado ninguna coincidencia, esconde la
+                    // fila de la tabla
+                    tableReg.rows[i].style.display = 'none';
+                }
+            }
+        }
+
+
+        $(document).ready(function () {
+            $('#tagsValue').change(function () {
+                var tagsSelected = $('#tagsValue').val();
+                search(tagsSelected);
+                for(var i = 0; i<tagsSelected.length;i++){
+                    //search(tagsSelected[i]);
+                }
+            });
+            $('#principalTagsValue').change(function () {
+                var value = document.getElementById('principalTagsValue').value;
+                var newOption = new Option(element, element);
+                $(newOption).html(element);
+                $("#secundaryTagsValue").append(newOption);
+
+                $('.secundaryClass option[value=' + value + ']').remove();
+                element = value;
+            });
+
+            $("#btncancel").click(function (e) {
+                e.preventDefault();
+                window.location.href = "@Url.Action("AddPlace", "Establishment")";
+            });
+
+            $("#btnsubmit").click(function (e) {
+                document.getElementById("btnsubmit").disabled = true;
+                var baseUrl = "@Url.Content("~")";
+                var name = document.getElementById('nameValue').value;
+                var location = document.getElementById('locationValue').value;
+
+                var postalCode = document.getElementById('postalCodeValue').value;
+
+                var about = document.getElementById('aboutValue').value;
+
+                var latitude = document.getElementById('latValue').value;
+
+                var longitude = document.getElementById('lngValue').value;
+
+                var authorName = "" + document.getElementById('authorNameValue1').value + "##" + document.getElementById('authorNameValue2').value + "##" + document.getElementById('authorNameValue3').value
+                    + "##" + document.getElementById('authorNameValue4').value + "##" + document.getElementById('authorNameValue5').value;
+
+                var authorUrl = "" + document.getElementById('authorPhotoValue1').value + "##" + document.getElementById('authorPhotoValue2').value + "##" + document.getElementById('authorPhotoValue3').value
+                    + "##" + document.getElementById('authorPhotoValue4').value + "##" + document.getElementById('authorPhotoValue5').value;
+
+                var authorRating = "" + document.getElementById('authorRatingValue1').value + "##" + document.getElementById('authorRatingValue2').value + "##" + document.getElementById('authorRatingValue3').value
+                    + "##" + document.getElementById('authorRatingValue4').value + "##" + document.getElementById('authorRatingValue5').value;
+
+                var relativeTime = "" + document.getElementById('authorRelativeTimeValue1').value + "##" + document.getElementById('authorRelativeTimeValue2').value + "##" + document.getElementById('authorRelativeTimeValue3').value
+                    + "##" + document.getElementById('authorRelativeTimeValue4').value + "##" + document.getElementById('authorRelativeTimeValue5').value;
+
+                var text = "" + document.getElementById('authorTextValue1').value + "##" + document.getElementById('authorTextValue2').value + "##" + document.getElementById('authorTextValue3').value
+                    + "##" + document.getElementById('authorTextValue4').value + "##" + document.getElementById('authorTextValue5').value;
+
+                var time = "" + document.getElementById('authorTimeinDaysValue1').value + "##" + document.getElementById('authorTimeinDaysValue2').value + "##" + document.getElementById('authorTimeinDaysValue3').value
+                    + "##" + document.getElementById('authorTimeinDaysValue4').value + "##" + document.getElementById('authorTimeinDaysValue5').value;
+
+                var rating = document.getElementById('ratingValue').value;
+                var phone = document.getElementById('phoneValue').value;
+                var openingTime = "" + document.getElementById('opMondayValue').value + "##" + document.getElementById('opTuesdayValue').value + "##" + document.getElementById('opWednesdayValue').value
+                    + "##" + document.getElementById('opThursdayValue').value + "##" + document.getElementById('opFridayValue').value + "##" + document.getElementById('opSaturdayValue').value + "##" + document.getElementById('opSundayValue').value;
+
+                var closingTime = "" + document.getElementById('clMondayValue').value + "##" + document.getElementById('clTuesdayValue').value + "##" + document.getElementById('clWednesdayValue').value
+                    + "##" + document.getElementById('clThursdayValue').value + "##" + document.getElementById('clFridayValue').value + "##" + document.getElementById('clSaturdayValue').value + "##" + document.getElementById('clSundayValue').value;
+
+                var website = document.getElementById('websiteValue').value;
+                var priceLevel = document.getElementById('priceLevelValue').value;
+                var tags = $('#tagsValue').val();
+                var principalTags = document.getElementById('principalTagsValue').value;
+                var secundaryTags = $('#secundaryTagsValue').val();
+                var certificationName = document.getElementById('certValue').value;
+
+                var cantMiss = $('#cantMissValue').is(":checked");
+                var enable = $('#enableValue').is(":checked");
+                var extraImages = "";
+                console.log("Probando::: " + isEmptyPrayerTime());
+                extraImages = extraImages + document.getElementById('extraLabelPicture').textContent + "##";
+                extraImages = extraImages + document.getElementById('extraLabelPicture1').textContent + "##";
+                extraImages = extraImages + document.getElementById('extraLabelPicture2').textContent + "##";
+                extraImages = extraImages + document.getElementById('extraLabelPicture3').textContent + "##";
+                extraImages = extraImages + document.getElementById('extraLabelPicture4').textContent + "##";
+                extraImages = extraImages + document.getElementById('extraLabelPicture5').textContent + "##";
+                var categories = "";
+                categories = categories + document.getElementById('categoryValue').value + "##";
+                categories = categories + document.getElementById('categoryValue2').value + "##";
+                categories = categories + document.getElementById('categoryValue3').value + "##";
+                categories = categories + document.getElementById('categoryValue4').value + "##";
+                categories = categories + document.getElementById('categoryValue5').value + "##";
+                categories = categories + document.getElementById('categoryValue6').value + "##";
+                
+                var sundayShajarit = document.getElementById("sundayShajarit").getElementsByTagName('input');
+                var sundayMinja = document.getElementById("sundayMinja").getElementsByTagName('input');
+                var sundayMaariv = document.getElementById("sundayMaariv").getElementsByTagName('input');
+                var mondayShajarit = document.getElementById("mondayShajarit").getElementsByTagName('input');
+                var mondayMinja = document.getElementById("mondayMinja").getElementsByTagName('input');
+                var mondayMaariv = document.getElementById("mondayMaariv").getElementsByTagName('input');
+                var tuesdayShajarit = document.getElementById("tuesdayShajarit").getElementsByTagName('input');
+                var tuesdayMinja = document.getElementById("tuesdayMinja").getElementsByTagName('input');
+                var tuesdayMaariv = document.getElementById("tuesdayMaariv").getElementsByTagName('input');
+                var wednesdayShajarit = document.getElementById("wednesdayShajarit").getElementsByTagName('input');
+                var wednesdayMinja = document.getElementById("wednesdayMinja").getElementsByTagName('input');
+                var wednesdayMaariv = document.getElementById("wednesdayMaariv").getElementsByTagName('input');
+                var thursdayShajarit = document.getElementById("thursdayShajarit").getElementsByTagName('input');
+                var thursdayMinja = document.getElementById("thursdayMinja").getElementsByTagName('input');
+                var thursdayMaariv = document.getElementById("thursdayMaariv").getElementsByTagName('input');
+                var fridayShajarit = document.getElementById("fridayShajarit").getElementsByTagName('input');
+                var fridayMinja = document.getElementById("fridayMinja").getElementsByTagName('input');
+                var fridayMaariv = document.getElementById("fridayMaariv").getElementsByTagName('input');
+                var saturdayShajarit = document.getElementById("saturdayShajarit").getElementsByTagName('input');
+                var saturdayMinja = document.getElementById("saturdayMinja").getElementsByTagName('input');
+                var saturdayMaariv = document.getElementById("saturdayMaariv").getElementsByTagName('input');
+                console.log(sundayShajarit[0],sundayShajarit[1],sundayShajarit[2]);
+                var prayersTime = [
+                    "Sunday$$" + "Shabbos**" + sundayShajarit[0].value + "-" + sundayShajarit[1].value + "-" + sundayShajarit[2].value
+                    + "##Mincha**" + sundayMinja[0].value + "-" + sundayMinja[1].value + "-" + sundayMinja[2].value
+                    + "##Maariv**" + sundayMaariv[0].value + "-" + sundayMaariv[1].value + "-" + sundayMaariv[2].value + "##",
+                    "Monday$$" + "Shabbos**" + mondayShajarit[0].value + "-" + mondayShajarit[1].value + "-" + mondayShajarit[2].value
+                    + "##Mincha**" + mondayMinja[0].value + "-" + mondayMinja[1].value + "-" + mondayMinja[2].value
+                    + "##Maariv**" + mondayMaariv[0].value + "-" + mondayMaariv[1].value + "-" + mondayMaariv[2].value + "##",
+                    "Tuesday$$" + "Shabbos**" + tuesdayShajarit[0].value + "-" + tuesdayShajarit[1].value + "-" + tuesdayShajarit[2].value 
+                    + "##Mincha**" + tuesdayMinja[0].value + "-" + tuesdayMinja[1].value + "-" + tuesdayMinja[2].value 
+                    + "##Maariv**" + tuesdayMaariv[0].value + "-" + tuesdayMaariv[1].value + "-" + tuesdayMaariv[2].value + "##",
+                    "Wendesday$$" + "Shabbos**" + wednesdayShajarit[0].value + "-" + wednesdayShajarit[1].value + "-" + wednesdayShajarit[2].value
+                    + "##Mincha**" + wednesdayMinja[0].value + "-" + wednesdayMinja[1].value + "-" + wednesdayMinja[2].value 
+                    + "##Maariv**" + wednesdayMaariv[0].value + "-" + wednesdayMaariv[1].value + "-" + wednesdayMaariv[2].value + "##",
+                    "Thursday$$" + "Shabbos**" + thursdayShajarit[0].value + "-" + thursdayShajarit[1].value + "-" + thursdayShajarit[2].value 
+                    + "##Mincha**" + thursdayMinja[0].value + "-" + thursdayMinja[1].value + "-" + thursdayMinja[2].value 
+                    + "##Maariv**" + thursdayMaariv[0].value + "-" + thursdayMaariv[1].value + "-" + thursdayMaariv[2].value + "##",
+                    "Friday$$" + "Shabbos**" + fridayShajarit[0].value + "-" + fridayShajarit[1].value + "-" + fridayShajarit[2].value 
+                    + "##Mincha**" + fridayMinja[0].value + "-" + fridayMinja[1].value + "-" + fridayMinja[2].value 
+                    + "##Maariv**" + fridayMaariv[0].value + "-" + fridayMaariv[1].value + "-" + fridayMaariv[2].value + "##",
+                    "Saturday$$" + "Shabbos**" + saturdayShajarit[0].value + "-" + saturdayShajarit[1].value + "-" + saturdayShajarit[2].value 
+                    + "##Mincha**" + saturdayMinja[0].value + "-" + saturdayMinja[1].value + "-" + saturdayMinja[2].value 
+                    + "##Maariv**" + saturdayMaariv[0].value + "-" + saturdayMaariv[1].value + "-" + saturdayMaariv[2].value + "##"
+                    ];
+
+                const formData = new FormData();
+                formData.append('Name', name);
+                formData.append('Location', location);
+                formData.append('ZipCode', postalCode);
+                formData.append('About', about);
+                formData.append('Latitude', latitude);
+                formData.append('Longitude', longitude);
+                formData.append('CantMiss', cantMiss);
+                formData.append('AuthorName', authorName);
+                formData.append('AuthorUrl', authorUrl);
+                formData.append('AuthorRating', authorRating);
+                formData.append('RelativeTime', relativeTime);
+                formData.append('Text', text);
+                formData.append('Enable', enable);
+                formData.append('Time', time);
+                formData.append('Rating', rating);
+                formData.append('Phone', phone);
+                formData.append('OpeningTime', openingTime);
+                formData.append('ClosingTime', closingTime);
+                formData.append('Website', website);
+                formData.append('PriceLevel', priceLevel);
+                formData.append('Tags', tags);
+                formData.append('MarkerID', markerSelectedID);
+                formData.append('CertificationName', certificationName);
+                formData.append('ImageFile', $('#imageValue')[0].files[0]);
+                formData.append('SecundaryPicture', $('#secundaryPicture')[0].files[0]);
+                formData.append('SecundaryPicture2', $('#secundaryPicture2')[0].files[0]);
+                formData.append('SecundaryPicture3', $('#secundaryPicture3')[0].files[0]);
+                formData.append('GooglePictureMain', document.getElementById('imageLabelValue').textContent);
+                formData.append('GoogleSecundaryPicture', document.getElementById('secundaryLabelPicture').textContent);
+                formData.append('GoogleSecundaryPicture2', document.getElementById('secundaryLabelPicture2').textContent);
+                formData.append('GoogleSecundaryPicture3', document.getElementById('secundaryLabelPicture3').textContent);
+                formData.append('LocationsDB', $('#locationsValue').val());
+                formData.append('PrincipalTag', principalTags);
+                formData.append('TagsNotMainDB', secundaryTags);
+                formData.append('ReviewsCount', document.getElementById('reviewsCountValue').value);
+                formData.append('GooglePlaceID', document.getElementById('googlePlaceIDValue').value);
+                formData.append('ExtraPicture',extraImages);
+                formData.append('Categories',categories);
+                formData.append('Permanently_closed',$('#isOpenValue').is(":checked"));
+                prayersTime = isEmptyPrayerTime() == false ? prayersTime : "";
+                formData.append('PrayersTime', prayersTime);
+                formData.append('Questionable', $('#questionableValue').is(":checked"));
+                formData.append('NotKosher', $('#notKosherValue').is(":checked"));
+                
+                $.ajax({
+                    url: baseUrl+"/Establishment/AddPlace",
+                    type: "POST",
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                }).done(function (res) {
+                    
+                    if (res.status === 'success') {
+                        toastr.success('The establishment was added successfully');
+                        setTimeout(function () {
+                            window.location.href = "@Url.Action("AddPlace", "Establishment")";
+                        }, 2000);
+                    } else {
+                        document.getElementById("btnsubmit").disabled = false;
+                        toastr.error(res.message);
+                    }
+                    console.log('Success');
+                }).fail(function (e, s, t) {
+                    console.log('Failed');
+                });
+            });
+
+            $("#btnphotosubmit").click(function (e) {
+                e.preventDefault();
+                var photo = $('#imagePhotoValue')[0].files[0];
+                var category = document.getElementById('categoryValue').value;
+                
+                var tbodyRef = document.getElementById('tbody');
+                var newRow = tbodyRef.insertRow();
+                newRow.id = 'row' + cont;
+                var newCell = newRow.insertCell();
+
+                var newText = document.createTextNode(category);
+                newCell.appendChild(newText);
+
+                var newCell2 = newRow.insertCell();
+                var newText2 = document.createTextNode('photo');
+                newCell2.appendChild(newText2);
+
+                var newCell3 = newRow.insertCell();
+                var newText3 = document.createTextNode('');
+                newCell3.appendChild(newText3);
+
+                var btn = document.createElement('button');
+                btn.type = "button";
+                btn.id = 'myBtn' + cont;
+                btn.value = 'row' + cont;
+                btn.classList.add('btn', 'btn-danger');
+                btn.setAttribute("data-toggle", "modal");
+                btn.dataset.target = "#modal-delete";
+                btn.innerHTML = '<i class="nav-icon fa fa-times"></i>';
+                btn.setAttribute("onclick","muestraAlerta(row"+cont+")");
+                console.log(btn);
+                var newCell4 = newRow.insertCell();
+                newCell4.innerHTML = '' + btn.outerHTML;
+                cont = cont + 1;
+                $('#modal-add').modal('hide');
+                $('.modal-backdrop').remove();
+
+            })
+            $("#btnDelete").click(function (e) {
+                var btnDelete = document.getElementById('btnDelete');
+                console.log("Entrado", btnDelete);
+            });
+        });
+    </script>
+    <!--Select2 Script-->
+    <script>
+        $(function () {
+            //Initialize Select2 Elements
+            $('.select2').select2()
+            //Initialize Select2 Elements
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            $('.my-colorpicker2').on('colorpickerChange', function (event) {
+                $('.my-colorpicker2 .fa-square').css('color', event.color.toString());
+            })
+        })
+        // BS-Stepper Init
+        document.addEventListener('DOMContentLoaded', function () {
+            window.stepper = new Stepper(document.querySelector('.bs-stepper'))
+        })
+
+    </script>
+</body>
+
+

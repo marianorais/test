@@ -1,0 +1,198 @@
+﻿@model KWB.Web.Models.Response.ResponseFavorite
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="../plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="../plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="../../plugins/toastr/toastr.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../css/adminlte.min.css">
+    <style>
+        td {
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+        #example1_length {
+            right: -850px;
+            top: -15px;
+            position: relative;
+        }
+
+        #example1_filter {
+            margin-top: 20px;
+        }
+    </style>
+
+</head>
+<body class="hold-transition sidebar-mini" style=" background-color: gray;">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div style="background-color: #007bff;" class="card-header">
+                    <h3 class="card-title" style="color:white;">Favorites</h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    @*<button type="button" onClick="addLocationTag()" class="btn btn-success"> Add Location</button>*@
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead style="height: 80px;">
+                            <tr>
+                                <th>Date</th>
+                                <th>Place</th>
+                                <th>User</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var favorite in Model.FavoritesDB)
+                            {
+                <tr>
+                    <td>@favorite.Fecha</td>
+                    <td>@favorite.Place</td>
+                    <td>@favorite.User</td>
+                    <td style="text-align: center; "><button type="button" onClick="deleteFavorite(@favorite.FavoriteID)" class="btn btn-danger" data-toggle="modal" data-target="#modal-delete"><i class="nav-icon fa fa-times"></i></button></td>
+
+                </tr>}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Date</th>
+                                <th>PlaceID</th>
+                                <th>UserID</th>
+                                <th>Delete</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+        </div>
+        <!-- /.col -->
+    </div>
+    <!--Delete-->
+    <div class="modal fade" id="modal-delete">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    @*<div class="icon-box">
+                            <i class="material-icons">&#xE5CD;</i>
+                        </div>*@
+                    <h4 class="modal-title w-100">Are you sure?</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Do you really want to delete this records? This process cannot be undone.</p>
+                    <input type="hidden" id="idValue">
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" id="btndelete" class="btn btn-danger btn-ok">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- jQuery -->
+    <script src="../plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables  & Plugins -->
+    <script src="../../plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="../../plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="../../plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="../../plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="../../plugins/jszip/jszip.min.js"></script>
+    <script src="../../plugins/pdfmake/pdfmake.min.js"></script>
+    <script src="../../plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+    <!-- Toastr -->
+    <script src="../../plugins/toastr/toastr.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="../js/adminlte.min.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="../js/demo.js"></script>
+
+    <!--Toast-->
+    <script>
+        $(function () {
+            var Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 100
+            });
+        });
+    </script>
+
+    <script>
+        function deleteFavorite(favID){
+            document.getElementById('idValue').value = favID;
+        }
+        var baseUrl = "@Url.Content("~")";
+        $(document).ready(function () {
+            //Delete
+            $("#btndelete").click(function (e) {
+                var id = document.getElementById('idValue').value;
+
+                const formData = new FormData();
+                formData.append('id', id);
+                $.ajax({
+                    url: baseUrl + "/User/DeleteFavorite",
+                    type: "POST",
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                }).done(function (res) {
+                    if (res.status === 'success') {
+                        toastr.success('The favorite was deleted successfully');
+                        setTimeout(function () {
+                            window.location.href = "@Url.Action("ShowFavorites", "User")";
+                        }, 2000);
+                    } else {
+                        toastr.error(res.message);
+                    }
+                    console.log('Success');
+                }).fail(function (e, s, t) {
+                    console.log('Failed');
+                });
+            });
+
+        });
+    </script>
+
+    <script>
+        $(function () {
+            $.noConflict();
+            $("#example1").DataTable({
+                "responsive": true, "lengthChange": true,"stateSave": true, "autoWidth": false
+            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+            $('#example2').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "stateSave": true,
+            });
+        });</script>
+</body>
+</html>

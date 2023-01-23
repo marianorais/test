@@ -1,0 +1,755 @@
+﻿@model KWB.Web.Models.Response.ResponseEruv
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="../../plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="../../plugins/toastr/toastr.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="../plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="../plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <!-- Bootstrap Color Picker -->
+    <link rel="stylesheet" href="../../plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css">
+    <!-- Tempusdominus Bootstrap 4 -->
+    <link rel="stylesheet" href="../../plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="../../plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="../../plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="../../plugins/toastr/toastr.min.css">
+    <!-- Bootstrap4 Duallistbox -->
+    <link rel="stylesheet" href="../../plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css">
+    <!-- BS Stepper -->
+    <link rel="stylesheet" href="../../plugins/bs-stepper/css/bs-stepper.min.css">
+    <!-- dropzonejs -->
+    <link rel="stylesheet" href="../../plugins/dropzone/min/dropzone.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../css/adminlte.min.css">
+
+    <style>
+        td {
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+
+        #example1_length {
+            right: -850px;
+            top: -40px;
+            position: relative;
+        }
+
+        #map {
+            height: 500px;
+            margin-bottom: 5%;
+        }
+    </style>
+</head>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div style="background-color: #007bff;" class="card-header">
+                    <h3 class="card-title" style="color:white;">Eruv</h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <button type="button" onClick="addEruv()" class="btn btn-success"> Add new eruv</button>
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Website</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Posek</th>
+                                <th>Synagogues</th>
+                                <th>Rabbinate</th>
+                                <th>Hotline Phone</th>
+                                <th>City</th>
+                                <th>Enable</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var eruv in Model.Eruvs)
+                            {
+                                <tr>
+                                    <td>@eruv.Name</td>
+                                    <td> @eruv.Website</td>
+                                    <td> @eruv.Email</td>
+                                    <td> @eruv.Phone</td>
+                                    <td> @eruv.Posek</td>
+                                    <td style="word-break: initial;" id="listColumn">
+                                        @if (eruv.ListSynagogues != null)
+                                        {
+                                            @foreach (var item in eruv.ListSynagogues)
+                                            {
+                                                <li style="list-style: auto;">
+                                                    @item
+                                                </li>
+                                            }
+                                        }
+                                    </td>
+                                    <td> @eruv.Rabbinate</td>
+                                    <td> @eruv.HotlinePhone</td>
+                                    <td> @eruv.City</td>
+                                    <td> @eruv.Enable</td>
+                                    <td style="text-align: center; "><button type="button" onClick="editEruv(@eruv.EruvID)" class="btn btn-default" data-toggle="modal" data-target="#modal-update"><i class="nav-icon fas fa-edit"></i></button></td>
+                                    <td style="text-align: center; "><button type="button" onClick="deleteEruv(@eruv.EruvID)" class="btn btn-danger" data-toggle="modal" data-target="#modal-delete"><i class="nav-icon fa fa-times"></i></button></td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Name</th>
+                                <th>Website</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Posek</th>
+                                <th>Synagogues</th>
+                                <th>Rabbinate</th>
+                                <th>Hotline Phone</th>
+                                <th>City</th>
+                                <th>Enable</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Update-->
+    <div class="modal fade" id="modal-update">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Eruv</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @*<button style="width: 30%;position: relative;right: -65%;" id="delete-button">
+                        Delete Selected Shape
+                    </button>*@
+
+                    <div id="map"></div>
+                    <form id="eruvform">
+
+                        <!-- Eruv ID -->
+                        <div class="form-group">
+                            <input type="hidden" class="form-control" id="idValue">
+                        </div>
+                        <!-- Eruv Points -->
+                        <div class="form-group">
+                            <input type="hidden" class="form-control" id="pointValue">
+                        </div>
+                        <!-- Eruv Name -->
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Name *</label>
+                            <input class="form-control" id="nameValue" placeholder="Enter name">
+                        </div>
+                        <!-- Rabinato -->
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Rabbinate</label>
+                            <input class="form-control" id="rabbinateValue" placeholder="Enter rabbinate">
+                        </div>
+                        <!-- Website -->
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Website</label>
+                            <input class="form-control" id="websiteValue"  maxlength="100" placeholder="Enter website">
+                        </div>
+                        <!-- Email -->
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Email</label>
+                            <input class="form-control" id="emailValue" placeholder="Enter email">
+                        </div>
+                        <!-- Phone -->
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Phone</label>
+                            <input class="form-control" id="phoneValue" placeholder="Enter phone">
+                        </div>
+                        <!-- HotlinePhone -->
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Hotline Phone</label>
+                            <input class="form-control" id="hotlinePhoneValue" placeholder="Enter hotline phone">
+                        </div>
+                        <!-- HotlinePhone -->
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">City</label>
+                            <input class="form-control" id="cityValue" placeholder="Enter city">
+                        </div>
+                        <!-- Posek -->
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Posek *</label>
+                            <input class="form-control" id="posekValue" placeholder="Enter posek">
+                        </div>
+                        <!-- Add Synagogues -->
+                        <div class="form-group">
+                            <label>Add Synagogues</label>
+                            <input class="form-control" id="synagogueValue" placeholder="Enter synagogue">
+                            <button type="button" id="btnSynagogue" style="margin-bottom: 20px; margin-top: 10px;" class="btn btn-primary">Add the new synagogue</button>
+                        </div>
+                        <!-- Synagogues -->
+                        <div class="form-group">
+                            <label>Synagogues Selected</label>
+                            <select id="synagoguesList" multiple="multiple" class="form-control" data-placeholder="Select synagogues associated" style="width: 100%;">
+                                @foreach (var synagogue in Model.AllSynagogues)
+                                {
+                                    <option value="@synagogue">@synagogue</option>
+                                }
+                            </select>
+                        </div>
+                        <!-- Comments -->
+                        <div class="form-group" style="display:grid;">
+                            <label for="exampleInputPassword1">Comments</label>
+                            <textarea name="Text1" cols="40" rows="5" id="commentsValue" style="resize: none;height: 106px;overflow-y: scroll;" maxlength="100" placeholder="Enter comments"></textarea>
+                        </div>
+                        <!-- Enable -->
+                        <div class="form-group">
+                            <input type="checkbox" id="enableValue" name="vehicle1">
+                            <label for="isMainValue"> Enable</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" id="btnsubmit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Delete-->
+    <div class="modal fade" id="modal-delete">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title w-100">Are you sure?</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Do you really want to delete this records? This process cannot be undone.</p>
+                    <input type="hidden" id="deleteIdValue">
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" id="btndelete" class="btn btn-danger btn-ok">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="../plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="../../plugins/sweetalert2/sweetalert2.min.js"></script>
+    <!-- Toastr -->
+    <script src="../../plugins/toastr/toastr.min.js"></script>
+    <!-- DataTables  & Plugins -->
+    <script src="../../plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="../../plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="../../plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="../../plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="../../plugins/jszip/jszip.min.js"></script>
+    <!-- Select2 -->
+    <script src="../../plugins/select2/js/select2.full.min.js"></script>
+    <!-- Toastr -->
+    <script src="../../plugins/toastr/toastr.min.js"></script>
+    <!-- Bootstrap4 Duallistbox -->
+    <script src="../../plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>
+    <!-- InputMask -->
+    <script src="../../plugins/moment/moment.min.js"></script>
+    <script src="../../plugins/inputmask/jquery.inputmask.min.js"></script>
+    <!-- bootstrap color picker -->
+    <script src="../../plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+    <script src="../../plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+    <!-- BS-Stepper -->
+    <script src="../../plugins/bs-stepper/js/bs-stepper.min.js"></script>
+    <!-- dropzonejs -->
+    <script src="../../plugins/dropzone/min/dropzone.min.js"></script>
+    <script src="../../plugins/pdfmake/pdfmake.min.js"></script>
+    <script src="../../plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="../../plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="../js/adminlte.min.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="../js/demo.js"></script>
+
+    <!--Toast-->
+    <script>
+        $(function () {
+            var Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 100
+            });
+        });
+    </script>
+
+<script>
+        var baseUrl = "@Url.Content("~")";
+        // Each marker is labeled with a single alphabetical character.
+        const labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        let labelIndex = 0;
+        let poly;
+        let infoWindow;
+        let marker1, marker2;
+        let geodesicPoly;
+        var drawingManager;
+        var selectedShape;
+        var colors = ['#1E90FF', '#FF1493', '#32CD32', '#FF8C00', '#4B0082'];
+        var selectedColor;
+        var colorButtons = {};
+        var points = [];
+        var mapGoogle;
+        console.log("first");
+        function initMap() {
+            const myLatLng = { lat: -34.615505, lng: -58.7128069 };
+            console.log("entrando0");
+            const map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 25.761681, lng: -80.191788 },
+                zoom: 6,
+                disableDefaultUI: true,
+                mapTypeControl: true,
+                mapTypeControlOptions: {
+                    style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                    position: google.maps.ControlPosition.TOP_CENTER,
+                },
+                zoomControl: true,
+                zoomControlOptions: {
+                    position: google.maps.ControlPosition.LEFT_CENTER,
+                },
+                scaleControl: true,
+                streetViewControl: true,
+                streetViewControlOptions: {
+                    position: google.maps.ControlPosition.LEFT_TOP,
+                },
+                fullscreenControl: true,
+            }); // Starting Point Buenos Aires
+        google.maps.event.trigger(map, 'resize');
+
+            mapGoogle = map;
+            console.log("entrando1");
+            var polyOptions = {
+                strokeWeight: 0,
+                fillOpacity: 0.45,
+                editable: true,
+                strokeColor: "#ff1010",
+                fillColor: "#ff1010"
+            };
+            const triangleCoords = [
+                { lat: 25.774, lng: -80.19 },
+                { lat: 18.466, lng: -66.118 },
+                { lat: 32.321, lng: -64.757 },
+                { lat: 25.774, lng: -80.19 },
+            ];
+
+            // Construct the polygon.
+            poly = new google.maps.Polygon({
+                paths: triangleCoords,
+                strokeColor: "#FF0000",
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: "#FF0000",
+                fillOpacity: 0.35,
+            });
+            console.log("entrando3");
+            drawingManager = new google.maps.drawing.DrawingManager({
+
+                drawingMode: google.maps.drawing.OverlayType.POLYGON,
+                //drawingMode: google.maps.drawing.OverlayType.MARKER,
+                drawingControl: true,
+                drawingControlOptions: {
+                    position: google.maps.ControlPosition.TOP_CENTER,
+                    drawingModes: [
+                        google.maps.drawing.OverlayType.POLYGON
+                    ]
+                },
+                markerOptions: {
+                    draggable: true
+                },
+                polylineOptions: {
+                    editable: true
+                },
+                rectangleOptions: polyOptions,
+                circleOptions: polyOptions,
+                polygonOptions: polyOptions,
+                map: map
+            });
+            console.log("entrando4");
+            //google.maps.event.addListener(drawingManager, 'overlaycomplete', function (e) {
+            //    var bounds = e.overlay.getPath().getArray();
+            //    points.push(bounds.toString());
+            //    console.log(points);
+            //    if (e.type != google.maps.drawing.OverlayType.MARKER) {
+            //        // Switch back to non-drawing mode after drawing a shape.
+            //        drawingManager.setDrawingMode(null);
+            //        // To hide:
+            //        drawingManager.setOptions({
+            //            drawingControl: false
+            //        });
+
+            //        // Add an event listener that selects the newly-drawn shape when the user
+            //        // mouses down on it.
+            //        var newShape = e.overlay;
+            //        newShape.type = e.type;
+
+            //        google.maps.event.addListener(newShape, 'click', function (e) {
+            //            setSelection(newShape);
+            //        });
+            //        setSelection(newShape);
+            //        if(google.maps.event !=null && newShape!=null){
+            //            console.log("entro sin romper");
+            //            google.maps.event.addListener(newShape, 'mouseup', function (e) {
+            //                var full_path = [];//initialize array for set coordinates.
+            //                newShape.getPath().getArray().forEach(function (elem, index) {
+            //                    console.log(elem.toUrlValue());
+            //                    full_path.push("(" + elem.toUrlValue() + ")");
+            //                });
+            //                console.log(full_path);
+            //                points = full_path;
+            //                document.getElementById("pointValue").value = points;
+            //                //var bounds = e.overlay.getPath().getArray();
+            //                //points.push(bounds.toString());
+            //            });
+            //        }
+            //    }
+            //});
+            console.log("entrando5");
+            google.maps.event.addListener(drawingManager, 'drawingmode_changed', clearSelection);
+            google.maps.event.addListener(map, 'click', clearSelection);
+            //google.maps.event.addDomListener(document.getElementById('delete-button'), 'click', deleteSelectedShape);
+            console.log("Entrado6");
+        }
+        function clearSelection() {
+            if (selectedShape) {
+                selectedShape.setEditable(false);
+                selectedShape = null;
+            }
+        }
+        function setSelection(shape) {
+            clearSelection();
+            selectedShape = shape;
+            shape.setEditable(true);
+            selectColor(shape.get('fillColor') || shape.get('strokeColor'));
+            //google.maps.event.addListener(shape.getPath(), 'set_at', calcar);
+            //google.maps.event.addListener(shape.getPath(), 'insert_at', calcar);
+        }
+        function deleteSelectedShape() {
+            if (selectedShape) {
+                selectedShape.setMap(null);
+                points = [];
+                drawingManager.setOptions({
+                    drawingControl: true
+                });
+            }
+        }
+        function selectColor(color) {
+            selectedColor = color;
+            for (var i = 0; i < colors.length; ++i) {
+                var currColor = colors[i];
+                //colorButtons[currColor].style.border = currColor == color ? '2px solid #789' : '2px solid #fff';
+            }
+
+            // Retrieves the current options from the drawing manager and replaces the
+            // stroke or fill color as appropriate.
+            var polylineOptions = drawingManager.get('polylineOptions');
+            polylineOptions.strokeColor = color;
+            drawingManager.set('polylineOptions', polylineOptions);
+
+            var rectangleOptions = drawingManager.get('rectangleOptions');
+            rectangleOptions.fillColor = color;
+            drawingManager.set('rectangleOptions', rectangleOptions);
+
+            var circleOptions = drawingManager.get('circleOptions');
+            circleOptions.fillColor = color;
+            drawingManager.set('circleOptions', circleOptions);
+
+            var polygonOptions = drawingManager.get('polygonOptions');
+            polygonOptions.fillColor = color;
+            drawingManager.set('polygonOptions', polygonOptions);
+        }
+        function buildColorPalette() {
+            var colorPalette = document.getElementById('color-palette');
+            for (var i = 0; i < colors.length; ++i) {
+                var currColor = colors[i];
+                var colorButton = makeColorButton(currColor);
+                colorPalette.appendChild(colorButton);
+                colorButtons[currColor] = colorButton;
+            }
+            selectColor(colors[0]);
+        }
+        function setSelectedShapeColor(color) {
+            if (selectedShape) {
+                if (selectedShape.type == google.maps.drawing.OverlayType.POLYLINE) {
+                    selectedShape.set('strokeColor', color);
+                } else {
+                    selectedShape.set('fillColor', color);
+                }
+            }
+        }
+        function makeColorButton(color) {
+            var button = document.createElement('span');
+            button.className = 'color-button';
+            button.style.backgroundColor = color;
+            google.maps.event.addDomListener(button, 'click', function () {
+                selectColor(color);
+                setSelectedShapeColor(color);
+            });
+
+            return button;
+        }
+        function update() {
+            const path = [marker1.getPosition(), marker2.getPosition()];
+
+            poly.setPath(path);
+            geodesicPoly.setPath(path);
+
+            const heading = google.maps.geometry.spherical.computeHeading(
+                path[0],
+                path[1]
+            );
+
+            document.getElementById("heading").value = String(heading);
+            document.getElementById("origin").value = String(path[0]);
+            document.getElementById("destination").value = String(path[1]);
+        }
+
+        function addEruv() {
+            window.location.href = "@Url.Action("Eruv", "Establishment")";
+        }
+        
+        function editEruv(id) {
+            document.getElementById("map").style.display = "none";
+            const formData = new FormData();
+            formData.append('id', id);
+            $.ajax({
+                url: baseUrl + "/Establishment/ReturnEruv",
+                type: "POST",
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                data: formData,
+            }).done(function (res) {
+                document.getElementById("map").style.display = "none";
+                if (res.status === 'success') {
+                    var eruv = res.data;
+                    console.log(eruv);
+                    poly.setMap(null);
+                    document.getElementById('idValue').value = eruv.eruvID;
+                    document.getElementById('nameValue').value = eruv.name;
+                    document.getElementById('rabbinateValue').value = eruv.rabbinate;
+                    document.getElementById('websiteValue').value = eruv.website;
+                    document.getElementById('emailValue').value = eruv.email;
+                    document.getElementById('phoneValue').value = eruv.phone;
+                    document.getElementById('hotlinePhoneValue').value = eruv.hotlinePhone;
+                    document.getElementById('cityValue').value = eruv.city;
+                    document.getElementById('posekValue').value = eruv.posek;
+                    document.getElementById('commentsValue').value = eruv.comments;
+                    document.getElementById('enableValue').checked = eruv.enable;
+                    //document.getElementById('synagoguesList').value = eruv.listSynagogues;
+                    var selectTag = document.getElementById('synagoguesList');
+                    var element = document.getElementById('synagoguesList');
+                    var select = $('#synagoguesList');
+                    $('#synagoguesList').val(eruv.listSynagogues);
+                    $('#synagoguesList').select2({});
+                    document.getElementById('pointValue').value = eruv.point;
+
+                    const eruvCoords = eruv.eruvCoordinates;
+                    console.log("recorriendo", eruvCoords);
+                    const myPolygon = new google.maps.Polygon({
+                        paths: eruvCoords,
+                        draggable: false, // turn off if it gets annoying
+                        editable: true,
+                        strokeColor: "#ff1010",
+                        strokeOpacity: 0.8,
+                        strokeWeight: 2,
+                        fillColor: "#ff1010",
+                        fillOpacity: 0.35
+                    });
+                    drawingManager.setDrawingMode(null);
+                    // To hide:
+                    drawingManager.setOptions({
+                        drawingControl: false
+                    });
+                    const center = new google.maps.LatLng(eruvCoords[0].lat,eruvCoords[0].lng);
+                    setTimeout(function () { 
+                        myPolygon.setMap(mapGoogle);
+                        //mapGoogle.panTo(center);
+                        google.maps.event.trigger(mapGoogle, 'resize');
+                        document.getElementById("map").style.display = "block";
+                    }, 500);
+                    poly = myPolygon;
+                      // using global variable:
+                    if(google.maps.event !=null && myPolygon!=null){ 
+                        console.log("entro sin romper");
+                        google.maps.event.addListener(myPolygon, 'mouseup', function (e) {
+                        var full_path = [];//initialize array for set coordinates.
+                        myPolygon.getPath().getArray().forEach(function (elem, index) {
+                            console.log(elem.toUrlValue());
+                            full_path.push("(" + elem.toUrlValue() + ")");
+                        });
+                        console.log(full_path);
+                        points = full_path;
+                        document.getElementById("pointValue").value = points;
+                    });
+                    }
+                   
+
+                } else {
+                    toastr.error(res.message);
+                }
+                console.log('Success');
+            }).fail(function (e, s, t) {
+                console.log('Failed');
+            });
+        }
+        function deleteEruv(id) {
+            document.getElementById('deleteIdValue').value = id;
+        }
+        
+        $(document).ready(function () {
+            //returnPoints();
+            $("#btnSynagogue").click(function(e){
+                var text = document.getElementById('synagogueValue');
+                if (text.value.length > 0) {
+                    var option = document.createElement("option");
+                    option.text = text.value;
+                    option.value = text.value;
+                    var select = document.getElementById("synagoguesList");
+                    select.appendChild(option);
+
+                    for (var i = 0, l = select.options.length, o; i < l; i++) {
+                        o = select.options[i];
+                        if (text.value.indexOf(o.text) != -1) {
+                            o.selected = true;
+                        }
+                    }
+                }
+            });
+            //Update
+            $("#btnsubmit").click(function (e) {
+                document.getElementById("btnsubmit").disabled = true;
+                const formData = new FormData();
+                formData.append('EruvID', document.getElementById('idValue').value);
+                formData.append('Name', document.getElementById('nameValue').value);
+                formData.append('Website', document.getElementById('websiteValue').value);
+                formData.append('Email', document.getElementById('emailValue').value);
+                formData.append('Comments', document.getElementById('commentsValue').value);
+                formData.append('Phone', document.getElementById('phoneValue').value);
+                formData.append('Posek', document.getElementById('posekValue').value);
+                formData.append('ListSynagogues', $('#synagoguesList').val());
+                formData.append('Rabbinate', document.getElementById('rabbinateValue').value);
+                formData.append('HotlinePhone', document.getElementById('hotlinePhoneValue').value);
+                formData.append('City', document.getElementById('cityValue').value);
+                formData.append('Enable', $('#enableValue').is(":checked"));
+                formData.append('Point', document.getElementById('pointValue').value);
+                $.ajax({
+                    url: baseUrl + "/Establishment/UpdateEruv",
+                    type: "POST",
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                }).done(function (res) {
+                    if (res.status === 'success') {
+                        toastr.success('This eruv was updated successfully');
+                        setTimeout(function () {
+                            window.location.href = "@Url.Action("ShowEruv", "Establishment")";
+                        }, 2000);
+                    } else {
+                        document.getElementById("btnsubmit").disabled = false;
+                        toastr.error(res.message);
+                    }
+                    console.log('Success');
+                }).fail(function (e, s, t) {
+                    console.log('Failed');
+                });
+            });
+            //Delete
+            $("#btndelete").click(function (e) {
+                var id = document.getElementById('deleteIdValue').value;
+
+                const formData = new FormData();
+                formData.append('id', id);
+                $.ajax({
+                    url: baseUrl + "/Establishment/DeleteEruv",
+                    type: "POST",
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                }).done(function (res) {
+                    if (res.status === 'success') {
+                        toastr.success('This eruv was deleted successfully');
+                        setTimeout(function () {
+                            window.location.href = "@Url.Action("ShowEruv", "Establishment")";
+                        }, 2000);
+                    } else {
+                        toastr.error(res.message);
+                    }
+                    console.log('Success');
+                }).fail(function (e, s, t) {
+                    console.log('Failed');
+                });
+            });
+
+            $("#addSynagogue").click(function (e) {
+                var synagogue = document.getElementById("synagoguesValue").value;
+                var selectedSynagogues = document.getElementById("synagoguesList");
+                console.log(synagogue);
+                var opt = document.createElement('option');
+                opt.value = synagogue;
+                opt.innerHTML = synagogue;
+                opt.selected = true;
+                selectedSynagogues.appendChild(opt);
+            });
+            $("#btncancel").click(function (e) {
+                e.preventDefault();
+                window.location.href = "@Url.Action("ShowEruv", "Establishment")";
+            });
+        });
+
+</script>
+
+<script>
+        $(function () {
+            $.noConflict();
+            $("#example1").DataTable({
+                "responsive": true, "lengthChange": true, "stateSave": true, "autoWidth": false
+            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+            $('#example2').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "stateSave": true,
+            });
+        });</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?libraries=geometry,drawing&key=AIzaSyCRJLTDv-YeDn8TIx7uYptHtuB5DwbXYJs&callback=initMap" async defer></script>
+

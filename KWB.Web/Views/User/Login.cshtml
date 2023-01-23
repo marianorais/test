@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        /*.sidebar{
+            display:none;
+        }*/
+        aside{
+            display: none;
+        }
+        nav {
+            display: none;
+        }
+    </style>
+</head>
+<body style=" background-color: gray;">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Login in KWB </h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <form>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">User Name</label>
+                            <input type="email" class="form-control" maxlength="100" id="emailValue" placeholder="Email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Password</label>
+                            <input type="password" class="form-control" maxlength="20" id="passwordValue" placeholder="Password" required>
+                        </div>
+                    </div>
+                    <!-- /.card-body -->
+
+                    <div class="card-footer">
+                        <button type="button" id="btncancel" class="btn btn-default btn-ok">Reset</button>
+                        <button style="left: 86%; position: relative;" id="btnsubmit" type="button" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        $(function () {
+            var Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 100
+            });
+        });
+    </script>
+    <script>
+        var passwordIncorrectCount = 0;
+        
+        var baseUrl = "@Url.Content("~")";
+        $(document).ready(function () {
+            $("#btncancel").click(function (e) {
+                e.preventDefault();
+                window.location.href = "@Url.Action("Login", "User")";
+            });
+            $("#btnsubmit").click(function (e) {
+                if (passwordIncorrectCount > 7) {
+                    toastr.error("more than 7 failed attempts wait 10 seconds and try again");
+                    document.getElementById("btnsubmit").disabled = true;
+                    passwordIncorrectCount = 0;
+                    setTimeout(function () {
+                        document.getElementById("btnsubmit").disabled = false;
+                    }, 10000);
+                }
+                else{
+                    document.getElementById("btnsubmit").disabled = true;
+                    //Serialize the form datas.
+
+                    const formData = new FormData();
+                    formData.append('UserName', document.getElementById("emailValue").value);
+                    formData.append('Password', document.getElementById("passwordValue").value);
+
+                    $.ajax({
+                        url: baseUrl + "/User/Login",
+                        type: "POST",
+                        dataType: 'json',
+                        processData: false,
+                        contentType: false,
+                        data: formData,
+                    }).done(function (res) {
+                        if (res.status === 'success') {
+                            toastr.success('The login was successfully');
+                            window.location.href = "@Url.Action("Index", "Home")";
+
+                        } else {
+                            document.getElementById("btnsubmit").disabled = false;
+                            toastr.error(res.message);
+                            passwordIncorrectCount = passwordIncorrectCount + 1;
+                            console.log("intentos: ", passwordIncorrectCount);
+                        }
+                        console.log('Success');
+                    }).fail(function (e, s, t) {
+                        console.log('Failed');
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
